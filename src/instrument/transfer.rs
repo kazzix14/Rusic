@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{ruby_class, section::Section, track::TrackInner, util::ConvertOrPanic};
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
-    Hash, Integer, Module, NilClass, Object, Proc, RString, Symbol, VerifiedObject, VM,
+    Hash, Integer, Module, NilClass, Object, Proc, RString, Symbol, VerifiedObject, GC, VM,
 };
 
 pub fn define(parent: &mut Module, data_class: &Class) {
@@ -72,6 +72,7 @@ impl Transfer {
     pub fn save(mut itself: Transfer, key: Symbol, value: AnyObject) -> NilClass {
         let transfer = itself.get_data_mut(&*TRANSFER_WRAPPER);
 
+        GC::register_mark(&value);
         transfer.store.insert(key.to_string(), value);
 
         NilClass::new()

@@ -8,7 +8,7 @@ use crate::{
 use itertools::Itertools;
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
-    Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, VM,
+    Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, GC, VM,
 };
 
 pub fn define(parent: &mut Module, data_class: &Class) {
@@ -62,6 +62,7 @@ impl Section {
     pub fn symbol(mut itself: Section, key: Symbol, value: Hash) -> NilClass {
         let section = itself.get_data_mut(&*SECTION_WRAPPER);
 
+        GC::register_mark(&value);
         section.symbols.insert(key.to_string(), value);
 
         NilClass::new()
@@ -97,10 +98,8 @@ impl Section {
         NilClass::new()
     }
 
-    pub fn get_sheet(&self) -> Vec<Hash> {
-        let section = self.get_data(&*SECTION_WRAPPER);
-
-        section.sheet.clone().expect("sheet is not set")
+    pub fn inner(&self) -> &SectionInner {
+        self.get_data(&*SECTION_WRAPPER)
     }
 
     pub fn to_any_object(&self) -> AnyObject {

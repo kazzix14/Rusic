@@ -15,7 +15,7 @@ mod util;
 use crate::{instrument::transfer, util::ConvertOrPanic};
 use rutie::{
     class, methods, module, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class,
-    Hash, Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, VM,
+    Hash, Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, GC, VM,
 };
 
 #[macro_export]
@@ -64,6 +64,8 @@ module!(Jungrust);
 
 #[no_mangle]
 pub extern "C" fn init_jungru() {
+    GC::disable();
+
     let data_class = Class::from_existing("Object");
 
     Module::new("Jungru").define(|module| {

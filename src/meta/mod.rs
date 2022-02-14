@@ -11,6 +11,7 @@ pub fn define(parent: &mut Module, data_class: &Class) {
     Class::new("Meta", Some(data_class)).define(|class| {
         class.define(|klass| {
             klass.def("bpm", meta__bpm);
+            klass.def("sample_rate", meta__sample_rate);
             klass.def("composite", meta__composite);
         });
     });
@@ -20,6 +21,7 @@ pub fn define(parent: &mut Module, data_class: &Class) {
         .define(|class| {
             class.define(|klass| {
                 klass.def("bpm", meta__bpm);
+                klass.def("sample_rate", meta__sample_rate);
                 klass.def("composite", meta__composite);
             });
         });
@@ -38,6 +40,9 @@ methods!(
     fn meta__bpm(bpm: Float) -> NilClass {
         Meta::bpm(itself, bpm.unwrap())
     },
+    fn meta__sample_rate(sample_rate: Float) -> NilClass {
+        Meta::sample_rate(itself, sample_rate.unwrap())
+    },
     fn meta__composite(composition: RString) -> NilClass {
         Meta::composite(itself, composition.unwrap().to_string())
     },
@@ -54,6 +59,14 @@ impl Meta {
         let meta = itself.get_data_mut(&*META_WRAPPER);
 
         meta.bpm = bpm.to_f64() as f32;
+
+        NilClass::new()
+    }
+
+    pub fn sample_rate(mut itself: Meta, sample_rate: Float) -> NilClass {
+        let meta = itself.get_data_mut(&*META_WRAPPER);
+
+        meta.sample_rate = sample_rate.to_f64() as f32;
 
         NilClass::new()
     }
@@ -101,6 +114,7 @@ fn read_alphanumeric(initial: char, source: &mut Chars) -> String {
 #[derive(Debug, Clone)]
 pub struct MetaInner {
     pub bpm: f32,
+    pub sample_rate: f32,
     pub composition: Vec<String>,
 }
 
@@ -108,6 +122,7 @@ impl MetaInner {
     pub fn new() -> Self {
         Self {
             bpm: 120.0,
+            sample_rate: 44100.0,
             composition: Vec::new(),
         }
     }

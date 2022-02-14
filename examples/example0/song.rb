@@ -1,4 +1,5 @@
 require 'jungru'
+require 'debug'
 
 j = ::Jungru::Piece.new
 
@@ -9,13 +10,9 @@ j.instrument :inst0 do |i|
   i.before_each_note do |i, n|
   end
 
-  i.signal do |i, n, t|
-    f = 440.0 * t * 2 * Math::PI
-
-    if t < 0.5 && n[:tone] == 0
-      i.out n[:vel] * Math.sin(f) * (1.0 - 0.8 * t)
-    elsif t < 0.5 && n[:tone] == 1
-      i.out t * Math.sin(f)
+  i.signal do |i, n, l, t|
+    if t < 2.5 * l
+      i.out Math.sin(n[:f] * 2.0 * Math::PI * t) * n[:v]
     else
       i.out nil
     end
@@ -23,30 +20,25 @@ j.instrument :inst0 do |i|
 end
 
 j.meta do |m|
-  m.bpm 162.0
+  m.bpm 120.0
   m.composite \
   '
-    a b
+    a
   '
 end
 
 j.track :track1, :inst0 do |t|
-  t.symbol :a, {vel: 0.5, tone: 0}
-  t.symbol :b, {vel: 0.5, tone: 1}
+  t.symbol :a, {f: 220.0, v: 0.1}
+  t.symbol :b, {f: 330.0, v: 0.1}
+  t.symbol :c, {f: 440.0, v: 0.1}
+  t.symbol :d, {f: 550.0, v: 0.1}
 
   t.section :a do |s|
-    s.division 1, 16
+    s.division 1, 4
     s.sheet \
     "
-      aaba aaba
-    "
-  end
-
-  t.section :b do |s|
-    s.division 1, 16
-    s.sheet \
-    "
-      bbab bbab
+      aabb ccdd
+      abcd abcd
     "
   end
 end

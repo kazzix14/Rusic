@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rutie", "~> 0.0.4"
   spec.add_development_dependency "solargraph"
+  spec.add_development_dependency "debug"
 
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"

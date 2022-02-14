@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::{ruby_class, section::Section, util::ConvertOrPanic};
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
-    Hash, Integer, Module, NilClass, Object, Proc, RString, Symbol, VerifiedObject, VM,
+    Hash, Integer, Module, NilClass, Object, Proc, RString, Symbol, VerifiedObject, GC, VM,
 };
 
 use self::transfer::Transfer;
@@ -61,7 +61,9 @@ impl Instrument {
     pub fn init(mut itself: Instrument) -> NilClass {
         let instrument = itself.get_data_mut(&*INSTRUMENT_WRAPPER);
 
-        instrument.init_fn = Some(VM::block_proc());
+        let init_fn = VM::block_proc();
+        GC::register_mark(&init_fn);
+        instrument.init_fn = Some(init_fn);
 
         NilClass::new()
     }
@@ -69,7 +71,9 @@ impl Instrument {
     pub fn before_each_note(mut itself: Instrument) -> NilClass {
         let instrument = itself.get_data_mut(&*INSTRUMENT_WRAPPER);
 
-        instrument.before_each_note_fn = Some(VM::block_proc());
+        let before_each_note_fn = VM::block_proc();
+        GC::register_mark(&before_each_note_fn);
+        instrument.before_each_note_fn = Some(before_each_note_fn);
 
         NilClass::new()
     }
@@ -77,7 +81,9 @@ impl Instrument {
     pub fn signal(mut itself: Instrument) -> NilClass {
         let instrument = itself.get_data_mut(&*INSTRUMENT_WRAPPER);
 
-        instrument.signal_fn = Some(VM::block_proc());
+        let signal_fn = VM::block_proc();
+        GC::register_mark(&signal_fn);
+        instrument.signal_fn = Some(signal_fn);
 
         NilClass::new()
     }
@@ -106,7 +112,7 @@ impl Instrument {
         transfer.inner().offset
     }
 
-    pub fn exec_signal(&mut self, note: &Hash, time: f32) -> Option<f32> {
+    pub fn exec_signal(&mut self, note: &Hash, length: f32, time: f32) -> Option<f32> {
         let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
         let mut transfer = instrument.transfer;
         transfer.reset();
@@ -114,6 +120,7 @@ impl Instrument {
         let arg = [
             transfer.to_any_object(),
             note.to_any_object(),
+            Float::new(length as f64).to_any_object(),
             Float::new(time as f64).to_any_object(),
         ];
 

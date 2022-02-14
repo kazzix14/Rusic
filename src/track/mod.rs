@@ -4,7 +4,7 @@ use crate::{instrument::Instrument, ruby_class, section::Section, util::ConvertO
 use itertools::Itertools;
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
-    Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, VM,
+    Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, GC, VM,
 };
 
 pub fn define(parent: &mut Module, data_class: &Class) {
@@ -57,6 +57,7 @@ impl Track {
     pub fn symbol(mut itself: Track, key: Symbol, value: Hash) -> NilClass {
         let track = itself.get_data_mut(&*TRACK_WRAPPER);
 
+        GC::register_mark(&value);
         track.symbols.insert(key.to_string(), value);
 
         NilClass::new()
@@ -73,7 +74,7 @@ impl Track {
         NilClass::new()
     }
 
-    pub fn gen(&self, sample_rate: f32) -> Vec<f32> {
+    pub fn gen(&self, bpm: f32, sample_rate: f32) -> Vec<f32> {
         let track = self.get_data(&*TRACK_WRAPPER);
         let mut instrument = track.instrument;
 
@@ -88,19 +89,47 @@ impl Track {
                     .get(section_name)
                     .expect(&format!("could not find section: {section_name}"))
             })
-            .map(|section| section.get_sheet())
+            .map(|section| {
+                let section = section.inner();
+                let sheet = section.sheet.as_ref().expect("sheet is not set");
+                let division = section.division.expect("division is not set");
+                sheet.into_iter().map(|note| (division, note)).collect_vec()
+            })
             .concat();
 
-        let mut track_signal = Vec::new();
+        let mut signals = Vec::new();
         let mut notes = notes.into_iter();
-        while let Some(note) = notes.next() {
-            instrument.exec_before_each_note(&note);
+        let mut time_elapsed = 0.0;
+        let mut end_time = 0.0;
+        while let Some((beat, note)) = notes.next() {
+            let offset = instrument.exec_before_each_note(note);
 
+            let mut note_signal = Vec::new();
             let mut time = 0.0;
-            while let Some(signal) = instrument.exec_signal(&note, time) {
+            while let Some(signal) = instrument.exec_signal(&note, beat.seconds(bpm), time) {
                 time += 1.0 / sample_rate;
 
-                track_signal.push(signal);
+                note_signal.push(signal);
+            }
+            signals.push((note_signal, offset, time_elapsed));
+            time_elapsed += beat.seconds(bpm);
+            end_time = time_elapsed + time + offset;
+        }
+
+        let mut signals = signals.into_iter();
+        let estimated_size = (end_time * sample_rate) as usize + 1;
+        let mut track_signal = Vec::with_capacity(estimated_size);
+        unsafe { track_signal.set_len(estimated_size) };
+        track_signal.iter_mut().for_each(|v| *v = 0.0);
+        while let Some((signal, offset, start)) = signals.next() {
+            let start = start + offset;
+            let mut start = (start * sample_rate) as usize;
+
+            let mut signal = signal.into_iter();
+            while let Some(s) = signal.next() {
+                let p = unsafe { track_signal.get_unchecked_mut(start) };
+                *p += s;
+                start += 1;
             }
         }
 

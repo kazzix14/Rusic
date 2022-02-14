@@ -87,7 +87,12 @@ impl Piece {
         let mut vec = piece
             .tracks
             .values()
-            .map(|track| track.gen(44100.0))
+            .map(|track| {
+                track.gen(
+                    piece.meta.unwrap().inner().bpm,
+                    piece.meta.unwrap().inner().sample_rate,
+                )
+            })
             .collect::<Vec<Vec<f32>>>();
 
         let spec = hound::WavSpec {
