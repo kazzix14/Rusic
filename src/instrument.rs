@@ -10,7 +10,6 @@ pub fn define(module: &mut Module) {
         .define_nested_class("InstrumentInner", None)
         .define(|klass| {
             klass.def_self("load", instrument__load);
-            klass.define_method("neko", instrument__neko);
             //klass.define_method("gen_signal", instrument__gen_signal);
         });
 }

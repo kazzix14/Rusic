@@ -9,7 +9,6 @@ use rutie::{
 pub fn define(parent: &mut Module, data_class: &Class) {
     Class::new("Track", Some(data_class)).define(|class| {
         class.define(|klass| {
-            klass.def_self("new", track__new);
             klass.def("symbol", track__symbol);
             klass.def("instrument", track__instrument);
             klass.def("section", track__section);
@@ -20,7 +19,6 @@ pub fn define(parent: &mut Module, data_class: &Class) {
         .define_nested_class("Track", Some(data_class))
         .define(|class| {
             class.define(|klass| {
-                klass.def_self("new", track__new);
                 klass.def("symbol", track__symbol);
                 klass.def("instrument", track__instrument);
                 klass.def("section", track__section);
@@ -29,6 +27,7 @@ pub fn define(parent: &mut Module, data_class: &Class) {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[repr(C)]
 pub struct Track {
     value: Value,
 }
@@ -59,7 +58,7 @@ impl Track {
 
     pub fn section(mut itself: Track, name: String) -> NilClass {
         let track = itself.get_data_mut(&*TRACK_WRAPPER);
-        let section = Section::new();
+        let section = Section::new(Some(track.symbols.clone()));
         let section = section.convert_or_panic();
         VM::yield_object(section);
 
@@ -114,13 +113,6 @@ impl VerifiedObject for Track {
 methods!(
     Track,
     itself,
-    fn track__new(name: Symbol) -> AnyObject {
-        let name = name
-            .expect("track name must be specified in Symbol")
-            .to_string();
-
-        Track::new(name)
-    },
     fn track__symbol(key: Symbol, value: Hash) -> NilClass {
         Track::symbol(itself, key.unwrap(), value.unwrap())
     },

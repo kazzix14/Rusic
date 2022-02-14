@@ -5,6 +5,7 @@ extern crate lazy_static;
 
 //mod inner;
 mod instrument;
+mod time;
 mod piece;
 mod section;
 mod track;

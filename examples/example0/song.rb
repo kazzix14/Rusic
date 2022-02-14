@@ -2,16 +2,22 @@ require 'jungru'
 
 j = ::Jungru::Piece.new
 
-puts j.inspect
-puts 'aaa'
-
 j.track :hat do |t|
-  t.symbol :a, vel: 0.1, tone: 2
+  t.symbol :a, vel: 0.5, tone: 0
+  t.symbol :b, vel: 0.5, tone: 1
   t.instrument :my_instrument
+
   t.section :a do |s|
+    s.symbol :a, vel: 0.5, tone: 2
+    s.division 1, 16
+
+    s.sheet \
+    "
+      aaaa bbbb
+      aaaa bbbb
+    "
   end
 end
-
 
 #j.master do |m|
 #  m.compose "
