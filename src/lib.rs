@@ -5,9 +5,9 @@ extern crate lazy_static;
 
 //mod inner;
 mod instrument;
-mod time;
 mod piece;
 mod section;
+mod time;
 mod track;
 mod util;
 
@@ -27,6 +27,6 @@ pub extern "C" fn init_jungru() {
         piece::define(module, &data_class);
         track::define(module, &data_class);
         section::define(module, &data_class);
-        //instrument::define(module, &data_class);
+        instrument::define(module, &data_class);
     });
 }

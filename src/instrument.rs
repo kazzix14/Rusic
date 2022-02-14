@@ -1,78 +1,125 @@
-use crate::util::ConvertOrPanic;
+use std::collections::HashMap;
 
+use crate::{section::Section, util::ConvertOrPanic};
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
-    Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, VM,
+    Integer, Module, NilClass, Object, Proc, RString, Symbol, VerifiedObject, VM,
 };
 
-pub fn define(module: &mut Module) {
-    module
-        .define_nested_class("InstrumentInner", None)
-        .define(|klass| {
-            klass.def_self("load", instrument__load);
-            //klass.define_method("gen_signal", instrument__gen_signal);
+pub fn define(parent: &mut Module, data_class: &Class) {
+    Class::new("Instrument", Some(data_class)).define(|class| {
+        class.define(|klass| {
+            klass.def("init", instrument__init);
+            klass.def("signal", instrument__signal);
+        });
+    });
+
+    parent
+        .define_nested_class("Instrument", Some(data_class))
+        .define(|class| {
+            class.define(|klass| {
+                klass.def("init", instrument__init);
+                klass.def("signal", instrument__signal);
+            });
         });
 }
 
-class!(Instrument);
-
-wrappable_struct!(InstrumentInner, InstrumentWrapper, INSTRUMENT_WRAPPER);
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(C)]
-pub struct InstrumentInner {}
+pub struct Instrument {
+    value: Value,
+}
+
+impl Instrument {
+    pub fn new() -> AnyObject {
+        let inner = InstrumentInner::new();
+
+        Class::from_existing("Instrument").wrap_data(inner, &*INSTRUMENT_WRAPPER)
+    }
+
+    pub fn init(mut itself: Instrument) -> NilClass {
+        let instrument = itself.get_data_mut(&*INSTRUMENT_WRAPPER);
+
+        instrument.init_fn = Some(VM::block_proc());
+
+        NilClass::new()
+    }
+
+    pub fn signal(mut itself: Instrument) -> NilClass {
+        let instrument = itself.get_data_mut(&*INSTRUMENT_WRAPPER);
+
+        instrument.signal_fn = Some(VM::block_proc());
+
+        NilClass::new()
+    }
+
+    pub fn to_any_object(&self) -> AnyObject {
+        AnyObject::from(self.value())
+    }
+}
+
+impl From<Value> for Instrument {
+    fn from(value: Value) -> Self {
+        Instrument { value }
+    }
+}
+
+impl TryFrom<AnyObject> for Instrument {
+    type Error = std::io::Error;
+
+    fn try_from(obj: AnyObject) -> Result<Instrument, Self::Error> {
+        if Class::from_existing("Instrument").case_equals(&obj) {
+            Ok(Instrument::from(obj.value()))
+        } else {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::AddrInUse,
+                "aaaaaaaaaokkkkkkk",
+            ))
+        }
+    }
+}
+
+impl Object for Instrument {
+    #[inline]
+    fn value(&self) -> Value {
+        self.value
+    }
+}
+
+impl VerifiedObject for Instrument {
+    fn is_correct_type<T: Object>(object: &T) -> bool {
+        Class::from_existing("Instrument").case_equals(object)
+    }
+
+    fn error_message() -> &'static str {
+        "Error converting to Instrument"
+    }
+}
 
 methods!(
     Instrument,
     itself,
-    fn instrument__load(name: RString) -> Instrument {
-        let name = name.map_err(|e| VM::raise_ex(e)).unwrap();
-
-        let inner = InstrumentInner::load(name.to_str()).unwrap();
-
-        Class::from_existing("RubyServer").wrap_data(inner, &*INSTRUMENT_WRAPPER)
+    fn instrument__init(name: RString) -> NilClass {
+        Instrument::init(itself)
     },
-    fn instrument__neko() -> RString {
-        let mut a = Array::from(itself.value());
-        a.push(RString::new_utf8("neko"));
-        a.pop().convert_or_panic()
+    fn instrument__signal(name: RString) -> NilClass {
+        Instrument::signal(itself)
     },
-    //fn instrument__gen_signal(note: Hash) -> AnyObject {
-    //    instrument__gen_signal__inner(itself, note)
-    //}
 );
 
-fn instrument__gen_signal__inner(itself: Instrument, note: Result<Hash, AnyException>) -> Hash {
-    let note = note.map_err(|e| VM::raise_ex(e)).unwrap();
-
-    let velocity: Integer = note.at(&Symbol::new("vel")).convert_or_panic();
-
-    let hash = Hash::new();
-    hash
-    //hash.store(Symbol::new("sample"), Symbol)
-
-    //note.into_iter().map(|note| match note {
-    //    _ if Class::from_existing("NilClass").case_equals(&note) => None,
-    //    _ if Class::from_existing("Hash").case_equals(&note) => {
-    //        Some(note.try_convert_to::<Hash>().unwrap())
-    //    }
-    //    _ => panic!("could not convert note #{note:?}"),
-    //});
-
-    //match note {
-    //    Some(note) => Array::new()
-    //        .push(
-    //            note.at(&Symbol::new("vel"))
-    //                .try_convert_to::<Integer>()
-    //                .unwrap(),
-    //        )
-    //        .to_any_object(),
-    //    None => NilClass::new().to_any_object(),
-    //}
+#[derive(Debug)]
+pub struct InstrumentInner {
+    pub init_fn: Option<Proc>,
+    pub signal_fn: Option<Proc>,
 }
 
 impl InstrumentInner {
-    pub fn load(ident: &str) -> Result<Self, ()> {
-        Ok(Self {})
+    pub fn new() -> Self {
+        Self {
+            init_fn: None,
+            signal_fn: None,
+        }
     }
 }
+
+wrappable_struct!(InstrumentInner, InstrumentWrapper, INSTRUMENT_WRAPPER);

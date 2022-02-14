@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{section::Section, util::ConvertOrPanic};
+use crate::{instrument::Instrument, section::Section, util::ConvertOrPanic};
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
     Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, VM,
@@ -10,7 +10,6 @@ pub fn define(parent: &mut Module, data_class: &Class) {
     Class::new("Track", Some(data_class)).define(|class| {
         class.define(|klass| {
             klass.def("symbol", track__symbol);
-            klass.def("instrument", track__instrument);
             klass.def("section", track__section);
         });
     });
@@ -20,7 +19,6 @@ pub fn define(parent: &mut Module, data_class: &Class) {
         .define(|class| {
             class.define(|klass| {
                 klass.def("symbol", track__symbol);
-                klass.def("instrument", track__instrument);
                 klass.def("section", track__section);
             });
         });
@@ -33,8 +31,8 @@ pub struct Track {
 }
 
 impl Track {
-    pub fn new(name: String) -> AnyObject {
-        let inner = TrackInner::new(name);
+    pub fn new(instrument: Instrument) -> AnyObject {
+        let inner = TrackInner::new(instrument);
 
         Class::from_existing("Track").wrap_data(inner, &*TRACK_WRAPPER)
     }
@@ -43,15 +41,6 @@ impl Track {
         let track = itself.get_data_mut(&*TRACK_WRAPPER);
 
         track.symbols.insert(key.to_string(), value);
-
-        NilClass::new()
-    }
-
-    pub fn instrument(mut itself: Track, name: Symbol) -> NilClass {
-        let track = itself.get_data_mut(&*TRACK_WRAPPER);
-
-        track.instrument =
-            Some(InstrumentInner::load(name.to_str()).expect("failed to load instrument"));
 
         NilClass::new()
     }
@@ -116,9 +105,6 @@ methods!(
     fn track__symbol(key: Symbol, value: Hash) -> NilClass {
         Track::symbol(itself, key.unwrap(), value.unwrap())
     },
-    fn track__instrument(name: Symbol) -> NilClass {
-        Track::instrument(itself, name.unwrap())
-    },
     fn track__section(name: Symbol) -> NilClass {
         let name = name
             .expect("section name must be specified in Symbol")
@@ -130,19 +116,17 @@ methods!(
 
 use crate::instrument::InstrumentInner;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct TrackInner {
-    pub name: String,
-    pub instrument: Option<InstrumentInner>,
+    pub instrument: Instrument,
     pub symbols: HashMap<String, Hash>,
     pub sections: HashMap<String, Section>,
 }
 
 impl TrackInner {
-    pub fn new(name: String) -> Self {
+    pub fn new(instrument: Instrument) -> Self {
         Self {
-            name: name,
-            instrument: None,
+            instrument: instrument,
             symbols: HashMap::new(),
             sections: HashMap::new(),
         }

@@ -142,7 +142,6 @@ use crate::instrument::InstrumentInner;
 
 #[derive(Debug, Clone)]
 pub struct SectionInner {
-    pub instrument: Option<InstrumentInner>,
     pub symbols: HashMap<String, Hash>,
     pub sheet: Option<Vec<Hash>>,
     pub division: Option<Beat>,
@@ -151,7 +150,6 @@ pub struct SectionInner {
 impl SectionInner {
     pub fn new(symbols: Option<HashMap<String, Hash>>) -> Self {
         Self {
-            instrument: None,
             symbols: symbols.unwrap_or(HashMap::new()),
             sheet: None,
             division: None,
