@@ -1,6 +1,6 @@
 use std::{collections::HashMap, str::Chars};
 
-use crate::{instrument::Instrument, section::Section, util::ConvertOrPanic};
+use crate::{instrument::Instrument, ruby_class, section::Section, util::ConvertOrPanic};
 use itertools::PeekingNext;
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
@@ -30,6 +30,18 @@ pub fn define(parent: &mut Module, data_class: &Class) {
 pub struct Meta {
     value: Value,
 }
+
+ruby_class!(Meta);
+methods!(
+    Meta,
+    itself,
+    fn meta__bpm(bpm: Float) -> NilClass {
+        Meta::bpm(itself, bpm.unwrap())
+    },
+    fn meta__composite(composition: RString) -> NilClass {
+        Meta::composite(itself, composition.unwrap().to_string())
+    },
+);
 
 impl Meta {
     pub fn new() -> AnyObject {
@@ -85,57 +97,6 @@ fn read_alphanumeric(initial: char, source: &mut Chars) -> String {
 
     s
 }
-
-impl From<Value> for Meta {
-    fn from(value: Value) -> Self {
-        Meta { value }
-    }
-}
-
-impl TryFrom<AnyObject> for Meta {
-    type Error = std::io::Error;
-
-    fn try_from(obj: AnyObject) -> Result<Meta, Self::Error> {
-        if Class::from_existing("Meta").case_equals(&obj) {
-            Ok(Meta::from(obj.value()))
-        } else {
-            Err(std::io::Error::new(
-                std::io::ErrorKind::AddrInUse,
-                "aaaaaaaaaokkkkkkk",
-            ))
-        }
-    }
-}
-
-impl Object for Meta {
-    #[inline]
-    fn value(&self) -> Value {
-        self.value
-    }
-}
-
-impl VerifiedObject for Meta {
-    fn is_correct_type<T: Object>(object: &T) -> bool {
-        Class::from_existing("Meta").case_equals(object)
-    }
-
-    fn error_message() -> &'static str {
-        "Error converting to Meta"
-    }
-}
-
-methods!(
-    Meta,
-    itself,
-    fn meta__bpm(bpm: Float) -> NilClass {
-        Meta::bpm(itself, bpm.unwrap())
-    },
-    fn meta__composite(composition: RString) -> NilClass {
-        Meta::composite(itself, composition.unwrap().to_string())
-    },
-);
-
-use crate::instrument::InstrumentInner;
 
 #[derive(Debug, Clone)]
 pub struct MetaInner {

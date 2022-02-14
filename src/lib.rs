@@ -12,11 +12,53 @@ mod time;
 mod track;
 mod util;
 
-use crate::util::ConvertOrPanic;
+use crate::{instrument::transfer, util::ConvertOrPanic};
 use rutie::{
     class, methods, module, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class,
     Hash, Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, VM,
 };
+
+#[macro_export]
+macro_rules! ruby_class {
+    ($class: ident) => {
+        impl From<rutie::types::Value> for $class {
+            fn from(value: rutie::types::Value) -> Self {
+                $class { value: value }
+            }
+        }
+
+        impl rutie::Object for $class {
+            #[inline]
+            fn value(&self) -> rutie::types::Value {
+                self.value
+            }
+        }
+
+        impl rutie::VerifiedObject for $class {
+            fn is_correct_type<T: Object>(object: &T) -> bool {
+                Class::from_existing(stringify!($class)).case_equals(object)
+            }
+
+            fn error_message() -> &'static str {
+                &concat!("Error converting to ", stringify!($class))
+            }
+        }
+        impl TryFrom<rutie::AnyObject> for $class {
+            type Error = std::io::Error;
+
+            fn try_from(obj: AnyObject) -> Result<$class, Self::Error> {
+                if Class::from_existing(stringify!($class)).case_equals(&obj) {
+                    Ok($class::from(obj.value()))
+                } else {
+                    Err(std::io::Error::new(
+                        std::io::ErrorKind::AddrInUse,
+                        "aaaaaaaaaokkkkkkk",
+                    ))
+                }
+            }
+        }
+    };
+}
 
 module!(Jungrust);
 
@@ -30,5 +72,6 @@ pub extern "C" fn init_jungru() {
         meta::define(module, &data_class);
         track::define(module, &data_class);
         section::define(module, &data_class);
+        transfer::define(module, &data_class);
     });
 }

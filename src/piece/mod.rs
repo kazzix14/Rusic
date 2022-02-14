@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::{
     instrument::Instrument,
     meta::Meta,
+    ruby_class,
     track::{Track, TRACK_WRAPPER},
     util::ConvertOrPanic,
 };
@@ -35,7 +36,13 @@ pub fn define(parent: &mut Module, data_class: &Class) {
         });
 }
 
-class!(Piece);
+#[derive(Debug, Clone, PartialEq)]
+#[repr(C)]
+pub struct Piece {
+    value: Value,
+}
+
+ruby_class!(Piece);
 methods!(
     Piece,
     itself,
@@ -77,11 +84,24 @@ impl Piece {
     pub fn gen(mut itself: Piece) -> NilClass {
         let piece = itself.get_data_mut(&*PIECE_WRAPPER);
 
-        let vec = piece
+        let mut vec = piece
             .tracks
             .values()
-            .map(|track| track.gen())
-            .collect::<Vec<()>>();
+            .map(|track| track.gen(44100.0))
+            .collect::<Vec<Vec<f32>>>();
+
+        let spec = hound::WavSpec {
+            channels: 1,
+            sample_rate: 44100,
+            bits_per_sample: 32,
+            sample_format: hound::SampleFormat::Float,
+        };
+        let mut writer = hound::WavWriter::create("out.wav", spec).unwrap();
+        vec.get(0)
+            .unwrap()
+            .into_iter()
+            .for_each(|&s| writer.write_sample(s).unwrap());
+        writer.finalize().unwrap();
 
         NilClass::new()
     }

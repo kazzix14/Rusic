@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{instrument::Instrument, section::Section, util::ConvertOrPanic};
+use crate::{instrument::Instrument, ruby_class, section::Section, util::ConvertOrPanic};
 use itertools::Itertools;
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
@@ -31,6 +31,22 @@ pub struct Track {
     value: Value,
 }
 
+ruby_class!(Track);
+methods!(
+    Track,
+    itself,
+    fn track__symbol(key: Symbol, value: Hash) -> NilClass {
+        Track::symbol(itself, key.unwrap(), value.unwrap())
+    },
+    fn track__section(name: Symbol) -> NilClass {
+        let name = name
+            .expect("section name must be specified in Symbol")
+            .to_string();
+
+        Track::section(itself, name)
+    },
+);
+
 impl Track {
     pub fn new(instrument: Instrument, composition: Vec<String>) -> AnyObject {
         let inner = TrackInner::new(instrument, composition);
@@ -57,9 +73,10 @@ impl Track {
         NilClass::new()
     }
 
-    pub fn gen(&self) {
+    pub fn gen(&self, sample_rate: f32) -> Vec<f32> {
         let track = self.get_data(&*TRACK_WRAPPER);
         let mut instrument = track.instrument;
+
         instrument.exec_init();
 
         let notes = track
@@ -74,72 +91,26 @@ impl Track {
             .map(|section| section.get_sheet())
             .concat();
 
+        let mut track_signal = Vec::new();
         let mut notes = notes.into_iter();
         while let Some(note) = notes.next() {
-            instrument.exec_before_each_note(note);
+            instrument.exec_before_each_note(&note);
+
+            let mut time = 0.0;
+            while let Some(signal) = instrument.exec_signal(&note, time) {
+                time += 1.0 / sample_rate;
+
+                track_signal.push(signal);
+            }
         }
-        //instrument.exec_signal();
+
+        track_signal
     }
 
     pub fn to_any_object(&self) -> AnyObject {
         AnyObject::from(self.value())
     }
 }
-
-impl From<Value> for Track {
-    fn from(value: Value) -> Self {
-        Track { value }
-    }
-}
-
-impl TryFrom<AnyObject> for Track {
-    type Error = std::io::Error;
-
-    fn try_from(obj: AnyObject) -> Result<Track, Self::Error> {
-        if Class::from_existing("Track").case_equals(&obj) {
-            Ok(Track::from(obj.value()))
-        } else {
-            Err(std::io::Error::new(
-                std::io::ErrorKind::AddrInUse,
-                "aaaaaaaaaokkkkkkk",
-            ))
-        }
-    }
-}
-
-impl Object for Track {
-    #[inline]
-    fn value(&self) -> Value {
-        self.value
-    }
-}
-
-impl VerifiedObject for Track {
-    fn is_correct_type<T: Object>(object: &T) -> bool {
-        Class::from_existing("Track").case_equals(object)
-    }
-
-    fn error_message() -> &'static str {
-        "Error converting to Track"
-    }
-}
-
-methods!(
-    Track,
-    itself,
-    fn track__symbol(key: Symbol, value: Hash) -> NilClass {
-        Track::symbol(itself, key.unwrap(), value.unwrap())
-    },
-    fn track__section(name: Symbol) -> NilClass {
-        let name = name
-            .expect("section name must be specified in Symbol")
-            .to_string();
-
-        Track::section(itself, name)
-    },
-);
-
-use crate::instrument::InstrumentInner;
 
 #[derive(Debug)]
 pub struct TrackInner {

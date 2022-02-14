@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
+    ruby_class,
     time::{Beat, Time},
     util::ConvertOrPanic,
 };
@@ -35,6 +36,21 @@ pub fn define(parent: &mut Module, data_class: &Class) {
 pub struct Section {
     value: Value,
 }
+
+ruby_class!(Section);
+methods!(
+    Section,
+    itself,
+    fn section__symbol(key: Symbol, value: Hash) -> NilClass {
+        Section::symbol(itself, key.unwrap(), value.unwrap())
+    },
+    fn section__sheet(sheet: RString) -> NilClass {
+        Section::sheet(itself, sheet.unwrap())
+    },
+    fn section__division(numerator: Integer, denominator: Integer) -> NilClass {
+        Section::division(itself, numerator.unwrap(), denominator.unwrap())
+    },
+);
 
 impl Section {
     pub fn new(symbols: HashMap<String, Hash>) -> AnyObject {
@@ -91,58 +107,6 @@ impl Section {
         AnyObject::from(self.value())
     }
 }
-
-impl From<Value> for Section {
-    fn from(value: Value) -> Self {
-        Section { value }
-    }
-}
-
-impl TryFrom<AnyObject> for Section {
-    type Error = std::io::Error;
-
-    fn try_from(obj: AnyObject) -> Result<Section, Self::Error> {
-        if Class::from_existing("Section").case_equals(&obj) {
-            Ok(Section::from(obj.value()))
-        } else {
-            Err(std::io::Error::new(
-                std::io::ErrorKind::AddrInUse,
-                "aaaaaaaaaokkkkkkk",
-            ))
-        }
-    }
-}
-
-impl Object for Section {
-    #[inline]
-    fn value(&self) -> Value {
-        self.value
-    }
-}
-
-impl VerifiedObject for Section {
-    fn is_correct_type<T: Object>(object: &T) -> bool {
-        Class::from_existing("Section").case_equals(object)
-    }
-
-    fn error_message() -> &'static str {
-        "Error converting to Section"
-    }
-}
-
-methods!(
-    Section,
-    itself,
-    fn section__symbol(key: Symbol, value: Hash) -> NilClass {
-        Section::symbol(itself, key.unwrap(), value.unwrap())
-    },
-    fn section__sheet(sheet: RString) -> NilClass {
-        Section::sheet(itself, sheet.unwrap())
-    },
-    fn section__division(numerator: Integer, denominator: Integer) -> NilClass {
-        Section::division(itself, numerator.unwrap(), denominator.unwrap())
-    },
-);
 
 use crate::instrument::InstrumentInner;
 
