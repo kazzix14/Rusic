@@ -5,6 +5,7 @@ extern crate lazy_static;
 
 //mod inner;
 mod instrument;
+mod meta;
 mod piece;
 mod section;
 mod time;
@@ -25,8 +26,9 @@ pub extern "C" fn init_jungru() {
 
     Module::new("Jungru").define(|module| {
         piece::define(module, &data_class);
+        instrument::define(module, &data_class);
+        meta::define(module, &data_class);
         track::define(module, &data_class);
         section::define(module, &data_class);
-        instrument::define(module, &data_class);
     });
 }

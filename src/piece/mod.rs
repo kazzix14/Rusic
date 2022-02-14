@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     instrument::Instrument,
+    meta::Meta,
     track::{Track, TRACK_WRAPPER},
     util::ConvertOrPanic,
 };
@@ -16,6 +17,8 @@ pub fn define(parent: &mut Module, data_class: &Class) {
             class.def_self("new", piece__new);
             class.def("track", piece__track);
             class.def("instrument", piece__instrument);
+            class.def("meta", piece__meta);
+            class.def("gen", piece__gen);
         });
     });
 
@@ -26,6 +29,8 @@ pub fn define(parent: &mut Module, data_class: &Class) {
                 class.def_self("new", piece__new);
                 class.def("track", piece__track);
                 class.def("instrument", piece__instrument);
+                class.def("meta", piece__meta);
+                class.def("gen", piece__gen);
             });
         });
 }
@@ -53,6 +58,12 @@ methods!(
             name.expect("instrument must be specified in Symbol")
                 .to_string(),
         )
+    },
+    fn piece__meta() -> NilClass {
+        Piece::meta(itself)
+    },
+    fn piece__gen() -> NilClass {
+        Piece::gen(itself)
     }
 );
 
@@ -63,6 +74,30 @@ impl Piece {
         Class::from_existing("Piece").wrap_data(inner, &*PIECE_WRAPPER)
     }
 
+    pub fn gen(mut itself: Piece) -> NilClass {
+        let piece = itself.get_data_mut(&*PIECE_WRAPPER);
+
+        let vec = piece
+            .tracks
+            .values()
+            .map(|track| track.gen())
+            .collect::<Vec<()>>();
+
+        NilClass::new()
+    }
+
+    pub fn meta(mut itself: Piece) -> NilClass {
+        let piece = itself.get_data_mut(&*PIECE_WRAPPER);
+        let meta = Meta::new();
+        let meta = meta.convert_or_panic();
+
+        VM::yield_object(meta);
+
+        piece.meta = Some(meta);
+
+        NilClass::new()
+    }
+
     pub fn track(mut itself: Piece, name: String, instrument_name: String) -> NilClass {
         let piece = itself.get_data_mut(&*PIECE_WRAPPER);
         let instrument = piece
@@ -70,7 +105,10 @@ impl Piece {
             .get(&instrument_name)
             .expect("could not find Instrument `{instrument_name}`");
 
-        let track = Track::new(instrument.clone());
+        let track = Track::new(
+            instrument.clone(),
+            piece.meta.unwrap().inner().composition.clone(),
+        );
         let track = track.convert_or_panic();
         piece.tracks.insert(name, track);
 
@@ -94,6 +132,7 @@ impl Piece {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct PieceInner {
+    meta: Option<Meta>,
     instruments: HashMap<String, Instrument>,
     tracks: HashMap<String, Track>,
 }
@@ -101,6 +140,7 @@ pub struct PieceInner {
 impl PieceInner {
     pub fn new() -> Self {
         Self {
+            meta: None,
             instruments: HashMap::new(),
             tracks: HashMap::new(),
         }

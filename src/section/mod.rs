@@ -37,7 +37,7 @@ pub struct Section {
 }
 
 impl Section {
-    pub fn new(symbols: Option<HashMap<String, Hash>>) -> AnyObject {
+    pub fn new(symbols: HashMap<String, Hash>) -> AnyObject {
         let inner = SectionInner::new(symbols);
 
         Class::from_existing("Section").wrap_data(inner, &*SECTION_WRAPPER)
@@ -79,6 +79,12 @@ impl Section {
         });
 
         NilClass::new()
+    }
+
+    pub fn get_sheet(&self) -> Vec<Hash> {
+        let section = self.get_data(&*SECTION_WRAPPER);
+
+        section.sheet.clone().expect("sheet is not set")
     }
 
     pub fn to_any_object(&self) -> AnyObject {
@@ -148,9 +154,9 @@ pub struct SectionInner {
 }
 
 impl SectionInner {
-    pub fn new(symbols: Option<HashMap<String, Hash>>) -> Self {
+    pub fn new(symbols: HashMap<String, Hash>) -> Self {
         Self {
-            symbols: symbols.unwrap_or(HashMap::new()),
+            symbols: symbols,
             sheet: None,
             division: None,
         }
