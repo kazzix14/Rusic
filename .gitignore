@@ -1,0 +1,11 @@
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+/target
+/vendor
+Cargo.lock
+Gemfile.lock
