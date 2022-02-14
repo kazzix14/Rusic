@@ -7,6 +7,7 @@ use crate::{
     track::{Track, TRACK_WRAPPER},
     util::ConvertOrPanic,
 };
+use itertools::Itertools;
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
     Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, VM,
@@ -84,16 +85,36 @@ impl Piece {
     pub fn gen(mut itself: Piece) -> NilClass {
         let piece = itself.get_data_mut(&*PIECE_WRAPPER);
 
-        let mut vec = piece
+        let sample_rate = piece.meta.unwrap().inner().sample_rate;
+
+        // (tracks: Vec<notes: Vec<(samples: Vec<f32>>, offset, start)>, tracks: Vec<estimated_size>)
+        let (signals, estimates): (Vec<Vec<(Vec<f32>, f32, f32)>>, Vec<usize>) = piece
             .tracks
             .values()
-            .map(|track| {
-                track.gen(
-                    piece.meta.unwrap().inner().bpm,
-                    piece.meta.unwrap().inner().sample_rate,
-                )
-            })
-            .collect::<Vec<Vec<f32>>>();
+            .map(|track| track.gen(piece.meta.unwrap().inner().bpm, sample_rate))
+            .unzip();
+
+        let signals = signals.into_iter().concat();
+        let mut signals = signals.into_iter();
+        let estimated_size = estimates.into_iter().max().unwrap();
+
+        // init buffer
+        let mut result_signal = Vec::with_capacity(estimated_size);
+        unsafe { result_signal.set_len(estimated_size) };
+        result_signal.iter_mut().for_each(|v| *v = 0.0);
+
+        // put together
+        while let Some((signal, offset, start)) = signals.next() {
+            let start = start + offset;
+            let mut start = (start * sample_rate) as usize;
+
+            let mut signal = signal.into_iter();
+            while let Some(s) = signal.next() {
+                let p = unsafe { result_signal.get_unchecked_mut(start) };
+                *p += s;
+                start += 1;
+            }
+        }
 
         let spec = hound::WavSpec {
             channels: 1,
@@ -102,10 +123,9 @@ impl Piece {
             sample_format: hound::SampleFormat::Float,
         };
         let mut writer = hound::WavWriter::create("out.wav", spec).unwrap();
-        vec.get(0)
-            .unwrap()
+        result_signal
             .into_iter()
-            .for_each(|&s| writer.write_sample(s).unwrap());
+            .for_each(|s| writer.write_sample(s).unwrap());
         writer.finalize().unwrap();
 
         NilClass::new()

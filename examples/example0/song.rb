@@ -4,15 +4,19 @@ require 'debug'
 j = ::Jungru::Piece.new
 
 j.instrument :inst0 do |i|
-  i.init do |i|
-  end
-  
-  i.before_each_note do |i, n|
-  end
-
   i.signal do |i, n, l, t|
     if t < 2.5 * l
       i.out Math.sin(n[:f] * 2.0 * Math::PI * t) * n[:v]
+    else
+      i.out nil
+    end
+  end
+end
+
+j.instrument :kick do |i|
+  i.signal do |i, n, l, t|
+    if t < l
+      i.out Math.sin((100.0 * (1 - t/l)) * t * 2.0 * Math::PI) * (1 - t/l)
     else
       i.out nil
     end
@@ -43,4 +47,17 @@ j.track :track1, :inst0 do |t|
   end
 end
 
-j.gen :wav, 'out.wav'
+j.track :track2, :kick do |t|
+  t.symbol :a, {}
+
+  t.section :a do |s|
+    s.division 1, 4
+    s.sheet \
+    "
+      aaaa aaaa
+      aaaa aaaa
+    "
+  end
+end
+
+j.gen #:wav, 'out.wav'

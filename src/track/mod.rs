@@ -74,7 +74,8 @@ impl Track {
         NilClass::new()
     }
 
-    pub fn gen(&self, bpm: f32, sample_rate: f32) -> Vec<f32> {
+    // returns (notes: Vec<(samples: Vec, offset, start)>, estimated_size)
+    pub fn gen(&self, bpm: f32, sample_rate: f32) -> (Vec<(Vec<f32>, f32, f32)>, usize) {
         let track = self.get_data(&*TRACK_WRAPPER);
         let mut instrument = track.instrument;
 
@@ -116,24 +117,9 @@ impl Track {
             end_time = time_elapsed + time + offset;
         }
 
-        let mut signals = signals.into_iter();
         let estimated_size = (end_time * sample_rate) as usize + 1;
-        let mut track_signal = Vec::with_capacity(estimated_size);
-        unsafe { track_signal.set_len(estimated_size) };
-        track_signal.iter_mut().for_each(|v| *v = 0.0);
-        while let Some((signal, offset, start)) = signals.next() {
-            let start = start + offset;
-            let mut start = (start * sample_rate) as usize;
 
-            let mut signal = signal.into_iter();
-            while let Some(s) = signal.next() {
-                let p = unsafe { track_signal.get_unchecked_mut(start) };
-                *p += s;
-                start += 1;
-            }
-        }
-
-        track_signal
+        (signals, estimated_size)
     }
 
     pub fn to_any_object(&self) -> AnyObject {
