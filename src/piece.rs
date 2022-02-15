@@ -6,7 +6,7 @@ use crate::{
 use itertools::Itertools;
 use rutie::{methods, types::Value, AnyObject, Class, Module, NilClass, Object, Symbol, VM};
 
-pub fn define_class(parent: &mut Module, super_class: &Class) {
+pub fn define_class(super_class: &Class) {
     Class::new("Piece", Some(super_class)).define(|class| {
         class.def_self("new", piece_new);
         class.def("track", piece_track);
@@ -14,16 +14,6 @@ pub fn define_class(parent: &mut Module, super_class: &Class) {
         class.def("meta", piece_meta);
         class.def("gen", piece_gen);
     });
-
-    parent
-        .define_nested_class("Piece", Some(super_class))
-        .define(|class| {
-            class.def_self("new", piece_new);
-            class.def("track", piece_track);
-            class.def("instrument", piece_instrument);
-            class.def("meta", piece_meta);
-            class.def("gen", piece_gen);
-        });
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{instrument::Instrument, meta::Meta, track::Track};
 
-use rutie::wrappable_struct;
+use rutie::{wrappable_struct, GC};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct PieceInner {
@@ -21,4 +21,10 @@ impl PieceInner {
     }
 }
 
-wrappable_struct!(PieceInner, PieceWrapper, PIECE_WRAPPER);
+wrappable_struct!(PieceInner, PieceWrapper, PIECE_WRAPPER,
+    mark(data) {
+        for v in data.tracks.values() {
+            GC::mark(v);
+        }
+    }
+);

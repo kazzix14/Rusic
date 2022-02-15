@@ -32,7 +32,7 @@ impl Section {
     pub fn symbol(&mut self, key: Symbol, value: Hash) -> NilClass {
         let section = self.get_data_mut(&*SECTION_WRAPPER);
 
-        GC::register_mark(&value);
+        //GC::mark(&value);
         section.symbols.insert(key.to_string(), value);
 
         NilClass::new()

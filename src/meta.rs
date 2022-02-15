@@ -11,14 +11,6 @@ pub fn define_class(super_class: &Class) {
         class.def("sample_rate", meta_sample_rate);
         class.def("composite", meta_composite);
     });
-
-    //parent
-    //    .define_nested_class("Meta", Some(super_class))
-    //    .define(|class| {
-    //            class.def("bpm", meta_bpm);
-    //            class.def("sample_rate", meta_sample_rate);
-    //            class.def("composite", meta_composite);
-    //    });
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

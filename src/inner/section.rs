@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use num::Rational32;
-use rutie::{wrappable_struct, Hash};
+use rutie::{wrappable_struct, Hash, GC};
 
 #[derive(Debug, Clone)]
 pub struct SectionInner {
@@ -35,4 +35,15 @@ impl SectionInner {
     }
 }
 
-wrappable_struct!(SectionInner, SectionWrapper, SECTION_WRAPPER);
+wrappable_struct!(SectionInner, SectionWrapper, SECTION_WRAPPER,
+mark(data) {
+    for v in data.symbols.values() {
+        GC::mark(v);
+    }
+    if let Some(vec) = &data.sheet {
+        for v in vec.iter() {
+            GC::mark(v);
+        }
+    }
+}
+);

@@ -1,6 +1,6 @@
 use rutie::wrappable_struct;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct OscillatorInner {
     pub phase: f64,
 }

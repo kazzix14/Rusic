@@ -1,7 +1,8 @@
 require 'jungru'
 require 'jungru/support'
+require 'debug'
 
-j = ::Jungru::Piece.new
+j = ::Piece.new
 
 #j.instrument :inst1 do |i|
 #  i.before_each_note do |i, n|
@@ -31,8 +32,17 @@ j = ::Jungru::Piece.new
 #end
 
 j.instrument :kick do |i|
+  i.init do |i|
+     i.save :o, ::Oscillator.new(0.1)
+  end
+
   i.signal do |i, n, l, t|
     if t < l
+
+      o = i.load :o
+      o.sin(100.0, 2.0)
+      o = i.load :o
+
       i.out Math.sin(440.0 * t)
     end
   end

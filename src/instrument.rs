@@ -7,14 +7,6 @@ pub fn define_class(super_class: &Class) {
         class.def("before_each_note", instrument_before_each_note);
         class.def("signal", instrument_signal);
     });
-
-    //parent
-    //    .define_nested_class("Instrument", Some(super_class))
-    //    .define(|class| {
-    //        class.def("init", instrument_init);
-    //        class.def("before_each_note", instrument_before_each_note);
-    //        class.def("signal", instrument_signal);
-    //    });
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -34,7 +26,6 @@ impl Instrument {
         let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
 
         let init_fn = VM::block_proc();
-        GC::register_mark(&init_fn);
         instrument.init_fn = Some(init_fn);
 
         NilClass::new()
@@ -44,7 +35,6 @@ impl Instrument {
         let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
 
         let before_each_note_fn = VM::block_proc();
-        GC::register_mark(&before_each_note_fn);
         instrument.before_each_note_fn = Some(before_each_note_fn);
 
         NilClass::new()
@@ -54,7 +44,6 @@ impl Instrument {
         let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
 
         let signal_fn = VM::block_proc();
-        GC::register_mark(&signal_fn);
         instrument.signal_fn = Some(signal_fn);
 
         NilClass::new()
@@ -62,8 +51,8 @@ impl Instrument {
 
     pub fn exec_init(&mut self) {
         let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
-        let transfer = instrument.transfer;
-        let arg = [transfer.to_any_object()];
+        let instrument_dto = instrument.instrument_dto;
+        let arg = [instrument_dto.to_any_object()];
 
         if let Some(f) = &instrument.init_fn {
             f.call(&arg);
@@ -72,25 +61,25 @@ impl Instrument {
 
     pub fn exec_before_each_note(&mut self, note: &Hash) -> f32 {
         let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
-        let mut transfer = instrument.transfer;
-        transfer.reset();
+        let mut instrument_dto = instrument.instrument_dto;
+        instrument_dto.reset();
 
-        let arg = [transfer.to_any_object(), note.to_any_object()];
+        let arg = [instrument_dto.to_any_object(), note.to_any_object()];
 
         if let Some(f) = &instrument.before_each_note_fn {
             f.call(&arg);
         }
 
-        transfer.inner().offset
+        instrument_dto.inner().offset
     }
 
     pub fn exec_signal(&mut self, note: &Hash, length: f32, time: f32) -> Option<f32> {
         let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
-        let mut transfer = instrument.transfer;
-        transfer.reset();
+        let mut instrument_dto = instrument.instrument_dto;
+        instrument_dto.reset();
 
         let arg = [
-            transfer.to_any_object(),
+            instrument_dto.to_any_object(),
             note.to_any_object(),
             Float::new(length as f64).to_any_object(),
             Float::new(time as f64).to_any_object(),
@@ -100,7 +89,7 @@ impl Instrument {
             f.call(&arg);
         }
 
-        transfer.inner().out
+        instrument_dto.inner().out
     }
 }
 

@@ -1,9 +1,12 @@
+use std::any::Any;
+
 use crate::{impl_inner, inner::oscillator::*, ruby_class};
 
 use rutie::{methods, types::Value, AnyObject, Class, Float, Object};
 
 pub fn define_class(super_class: &Class) {
     Class::new("Oscillator", Some(super_class)).define(|class| {
+        class.def_self("new", oscillator_new);
         class.def("sin", oscillator_sin);
         class.def("saw", oscillator_saw);
         class.def("square", oscillator_square);
@@ -11,13 +14,14 @@ pub fn define_class(super_class: &Class) {
 }
 
 #[derive(Debug, Clone, Copy)]
+#[repr(C)]
 pub struct Oscillator {
     value: Value,
 }
 
 impl Oscillator {
-    pub fn new(phase: f64) -> AnyObject {
-        let inner = OscillatorInner::new(phase);
+    pub fn new(phase: Float) -> AnyObject {
+        let inner = OscillatorInner::new(phase.to_f64());
 
         Class::from_existing("Oscillator").wrap_data(inner, &*OSCILLATOR_WRAPPER)
     }
@@ -52,6 +56,9 @@ impl_inner!(Oscillator, OscillatorInner, OSCILLATOR_WRAPPER);
 methods!(
     Oscillator,
     itself,
+    fn oscillator_new(p: Float) -> AnyObject {
+        Oscillator::new(p.unwrap())
+    },
     fn oscillator_sin(f: Float, d: Float) -> Float {
         Float::new(itself.sin(f.unwrap().to_f64(), d.unwrap().to_f64()))
     },

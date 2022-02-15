@@ -30,7 +30,7 @@ impl Track {
     pub fn symbol(&mut self, key: Symbol, value: Hash) -> NilClass {
         let track = self.get_data_mut(&*TRACK_WRAPPER);
 
-        GC::register_mark(&value);
+        //GC::mark(&value);
         track.symbols.insert(key.to_string(), value);
 
         NilClass::new()
