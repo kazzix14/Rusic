@@ -7,17 +7,17 @@ use rutie::{methods, types::Value, AnyObject, Class, Float, Module, NilClass, Ob
 
 pub fn define_class(super_class: &Class) {
     Class::new("Meta", Some(super_class)).define(|class| {
-        class.def("bpm", meta__bpm);
-        class.def("sample_rate", meta__sample_rate);
-        class.def("composite", meta__composite);
+        class.def("bpm", meta_bpm);
+        class.def("sample_rate", meta_sample_rate);
+        class.def("composite", meta_composite);
     });
 
     //parent
     //    .define_nested_class("Meta", Some(super_class))
     //    .define(|class| {
-    //            class.def("bpm", meta__bpm);
-    //            class.def("sample_rate", meta__sample_rate);
-    //            class.def("composite", meta__composite);
+    //            class.def("bpm", meta_bpm);
+    //            class.def("sample_rate", meta_sample_rate);
+    //            class.def("composite", meta_composite);
     //    });
 }
 
@@ -87,13 +87,13 @@ impl_inner!(Meta, MetaInner, META_WRAPPER);
 methods!(
     Meta,
     itself,
-    fn meta__bpm(bpm: Float) -> NilClass {
+    fn meta_bpm(bpm: Float) -> NilClass {
         Meta::bpm(itself, bpm.unwrap())
     },
-    fn meta__sample_rate(sample_rate: Float) -> NilClass {
+    fn meta_sample_rate(sample_rate: Float) -> NilClass {
         Meta::sample_rate(itself, sample_rate.unwrap())
     },
-    fn meta__composite(composition: RString) -> NilClass {
+    fn meta_composite(composition: RString) -> NilClass {
         Meta::composite(itself, composition.unwrap().to_string())
     },
 );

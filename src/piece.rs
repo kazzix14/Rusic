@@ -8,21 +8,21 @@ use rutie::{methods, types::Value, AnyObject, Class, Module, NilClass, Object, S
 
 pub fn define_class(parent: &mut Module, super_class: &Class) {
     Class::new("Piece", Some(super_class)).define(|class| {
-        class.def_self("new", piece__new);
-        class.def("track", piece__track);
-        class.def("instrument", piece__instrument);
-        class.def("meta", piece__meta);
-        class.def("gen", piece__gen);
+        class.def_self("new", piece_new);
+        class.def("track", piece_track);
+        class.def("instrument", piece_instrument);
+        class.def("meta", piece_meta);
+        class.def("gen", piece_gen);
     });
 
     parent
         .define_nested_class("Piece", Some(super_class))
         .define(|class| {
-            class.def_self("new", piece__new);
-            class.def("track", piece__track);
-            class.def("instrument", piece__instrument);
-            class.def("meta", piece__meta);
-            class.def("gen", piece__gen);
+            class.def_self("new", piece_new);
+            class.def("track", piece_track);
+            class.def("instrument", piece_instrument);
+            class.def("meta", piece_meta);
+            class.def("gen", piece_gen);
         });
 }
 
@@ -142,10 +142,10 @@ impl_inner!(Piece, PieceInner, PIECE_WRAPPER);
 methods!(
     Piece,
     itself,
-    fn piece__new() -> AnyObject {
+    fn piece_new() -> AnyObject {
         Piece::new()
     },
-    fn piece__track(name: Symbol, instrument_name: Symbol) -> NilClass {
+    fn piece_track(name: Symbol, instrument_name: Symbol) -> NilClass {
         Piece::track(
             itself,
             name.expect("track name must be specified in Symbol")
@@ -155,17 +155,17 @@ methods!(
                 .to_string(),
         )
     },
-    fn piece__instrument(name: Symbol) -> NilClass {
+    fn piece_instrument(name: Symbol) -> NilClass {
         Piece::instrument(
             itself,
             name.expect("instrument must be specified in Symbol")
                 .to_string(),
         )
     },
-    fn piece__meta() -> NilClass {
+    fn piece_meta() -> NilClass {
         Piece::meta(itself)
     },
-    fn piece__gen() -> NilClass {
+    fn piece_gen() -> NilClass {
         Piece::gen(itself)
     }
 );

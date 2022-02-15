@@ -10,10 +10,10 @@ use rutie::{
 
 pub fn define_class(super_class: &Class) {
     Class::new("Section", Some(super_class)).define(|class| {
-        class.def("symbol", section__symbol);
-        class.def("sheet", section__sheet);
-        class.def("division", section__division);
-        class.def("length", section__length);
+        class.def("symbol", section_symbol);
+        class.def("sheet", section_sheet);
+        class.def("division", section_division);
+        class.def("length", section_length);
     });
 }
 
@@ -80,16 +80,16 @@ impl_inner!(Section, SectionInner, SECTION_WRAPPER);
 methods!(
     Section,
     itself,
-    fn section__symbol(key: Symbol, value: Hash) -> NilClass {
+    fn section_symbol(key: Symbol, value: Hash) -> NilClass {
         Section::symbol(itself, key.unwrap(), value.unwrap())
     },
-    fn section__sheet(sheet: RString) -> NilClass {
+    fn section_sheet(sheet: RString) -> NilClass {
         Section::sheet(itself, sheet.unwrap())
     },
-    fn section__division(numerator: Integer, denominator: Integer) -> NilClass {
+    fn section_division(numerator: Integer, denominator: Integer) -> NilClass {
         Section::division(itself, numerator.unwrap(), denominator.unwrap())
     },
-    fn section__length(numerator: Integer, denominator: Integer) -> NilClass {
+    fn section_length(numerator: Integer, denominator: Integer) -> NilClass {
         Section::length(itself, numerator.unwrap(), denominator.unwrap())
     },
 );

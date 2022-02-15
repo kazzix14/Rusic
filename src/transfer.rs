@@ -4,19 +4,19 @@ use rutie::{methods, types::Value, AnyObject, Class, Float, Module, NilClass, Ob
 
 pub fn define_class(super_class: &Class) {
     Class::new("Transfer", Some(super_class)).define(|class| {
-        class.def("load", transfer__load);
-        class.def("save", transfer__save);
-        class.def("offset", transfer__offset);
-        class.def("out", transfer__out);
+        class.def("load", transfer_load);
+        class.def("save", transfer_save);
+        class.def("offset", transfer_offset);
+        class.def("out", transfer_out);
     });
 
     //parent
     //    .define_nested_class("Transfer", Some(super_class))
     //    .define(|class| {
-    //        class.def("load", transfer__load);
-    //        class.def("save", transfer__save);
-    //        class.def("offset", transfer__offset);
-    //        class.def("out", transfer__out);
+    //        class.def("load", transfer_load);
+    //        class.def("save", transfer_save);
+    //        class.def("offset", transfer_offset);
+    //        class.def("out", transfer_out);
     //    });
 }
 
@@ -87,16 +87,16 @@ impl_inner!(Transfer, TransferInner, TRANSFER_WRAPPER);
 methods!(
     Transfer,
     itself,
-    fn transfer__load(key: Symbol) -> AnyObject {
+    fn transfer_load(key: Symbol) -> AnyObject {
         Transfer::load(itself, key.unwrap())
     },
-    fn transfer__save(key: Symbol, value: AnyObject) -> NilClass {
+    fn transfer_save(key: Symbol, value: AnyObject) -> NilClass {
         Transfer::save(itself, key.unwrap(), value.unwrap())
     },
-    fn transfer__offset(offset: Float) -> NilClass {
+    fn transfer_offset(offset: Float) -> NilClass {
         Transfer::offset(itself, offset.unwrap())
     },
-    fn transfer__out(signal: AnyObject) -> NilClass {
+    fn transfer_out(signal: AnyObject) -> NilClass {
         Transfer::out(itself, signal.unwrap())
     },
 );

@@ -9,8 +9,8 @@ use rutie::{methods, types::Value, AnyObject, Class, Hash, NilClass, Object, Sym
 
 pub fn define_class(super_class: &Class) {
     Class::new("Track", Some(super_class)).define(|class| {
-        class.def("symbol", track__symbol);
-        class.def("section", track__section);
+        class.def("symbol", track_symbol);
+        class.def("section", track_section);
     });
 }
 
@@ -116,10 +116,10 @@ impl_inner!(Track, TrackInner, TRACK_WRAPPER);
 methods!(
     Track,
     itself,
-    fn track__symbol(key: Symbol, value: Hash) -> NilClass {
+    fn track_symbol(key: Symbol, value: Hash) -> NilClass {
         Track::symbol(itself, key.unwrap(), value.unwrap())
     },
-    fn track__section(name: Symbol) -> NilClass {
+    fn track_section(name: Symbol) -> NilClass {
         let name = name
             .expect("section name must be specified in Symbol")
             .to_string();

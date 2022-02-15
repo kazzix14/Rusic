@@ -7,17 +7,17 @@ use crate::transfer::*;
 
 pub fn define_class(super_class: &Class) {
     Class::new("Instrument", Some(super_class)).define(|class| {
-        class.def("init", instrument__init);
-        class.def("before_each_note", instrument__before_each_note);
-        class.def("signal", instrument__signal);
+        class.def("init", instrument_init);
+        class.def("before_each_note", instrument_before_each_note);
+        class.def("signal", instrument_signal);
     });
 
     //parent
     //    .define_nested_class("Instrument", Some(super_class))
     //    .define(|class| {
-    //        class.def("init", instrument__init);
-    //        class.def("before_each_note", instrument__before_each_note);
-    //        class.def("signal", instrument__signal);
+    //        class.def("init", instrument_init);
+    //        class.def("before_each_note", instrument_before_each_note);
+    //        class.def("signal", instrument_signal);
     //    });
 }
 
@@ -113,13 +113,13 @@ impl_inner!(Instrument, InstrumentInner, INSTRUMENT_WRAPPER);
 methods!(
     Instrument,
     itself,
-    fn instrument__init() -> NilClass {
+    fn instrument_init() -> NilClass {
         Instrument::init(itself)
     },
-    fn instrument__before_each_note() -> NilClass {
+    fn instrument_before_each_note() -> NilClass {
         Instrument::before_each_note(itself)
     },
-    fn instrument__signal() -> NilClass {
+    fn instrument_signal() -> NilClass {
         Instrument::signal(itself)
     },
 );
