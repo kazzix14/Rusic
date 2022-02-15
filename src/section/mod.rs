@@ -13,22 +13,18 @@ use rutie::{
 
 pub fn define(parent: &mut Module, data_class: &Class) {
     Class::new("Section", Some(data_class)).define(|class| {
-        class.define(|klass| {
-            klass.def("symbol", section__symbol);
-            klass.def("sheet", section__sheet);
-            klass.def("division", section__division);
-        });
+        class.def("symbol", section__symbol);
+        class.def("sheet", section__sheet);
+        class.def("division", section__division);
     });
 
-    parent
-        .define_nested_class("Section", Some(data_class))
-        .define(|class| {
-            class.define(|klass| {
-                klass.def("symbol", section__symbol);
-                klass.def("sheet", section__sheet);
-                klass.def("division", section__division);
-            });
-        });
+    //parent
+    //    .define_nested_class("Section", Some(data_class))
+    //    .define(|class| {
+    //        class.def("symbol", section__symbol);
+    //        class.def("sheet", section__sheet);
+    //        class.def("division", section__division);
+    //    });
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

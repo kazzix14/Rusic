@@ -8,24 +8,20 @@ use rutie::{
 
 pub fn define(parent: &mut Module, data_class: &Class) {
     Class::new("Transfer", Some(data_class)).define(|class| {
-        class.define(|klass| {
-            klass.def("load", transfer__load);
-            klass.def("save", transfer__save);
-            klass.def("offset", transfer__offset);
-            klass.def("out", transfer__out);
-        });
+        class.def("load", transfer__load);
+        class.def("save", transfer__save);
+        class.def("offset", transfer__offset);
+        class.def("out", transfer__out);
     });
 
-    parent
-        .define_nested_class("Transfer", Some(data_class))
-        .define(|class| {
-            class.define(|klass| {
-                klass.def("load", transfer__load);
-                klass.def("save", transfer__save);
-                klass.def("offset", transfer__offset);
-                klass.def("out", transfer__out);
-            });
-        });
+    //parent
+    //    .define_nested_class("Transfer", Some(data_class))
+    //    .define(|class| {
+    //        class.def("load", transfer__load);
+    //        class.def("save", transfer__save);
+    //        class.def("offset", transfer__offset);
+    //        class.def("out", transfer__out);
+    //    });
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

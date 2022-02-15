@@ -15,25 +15,21 @@ use rutie::{
 
 pub fn define(parent: &mut Module, data_class: &Class) {
     Class::new("Piece", Some(data_class)).define(|class| {
-        class.define(|class| {
-            class.def_self("new", piece__new);
-            class.def("track", piece__track);
-            class.def("instrument", piece__instrument);
-            class.def("meta", piece__meta);
-            class.def("gen", piece__gen);
-        });
+        class.def_self("new", piece__new);
+        class.def("track", piece__track);
+        class.def("instrument", piece__instrument);
+        class.def("meta", piece__meta);
+        class.def("gen", piece__gen);
     });
 
     parent
         .define_nested_class("Piece", Some(data_class))
         .define(|class| {
-            class.define(|class| {
-                class.def_self("new", piece__new);
-                class.def("track", piece__track);
-                class.def("instrument", piece__instrument);
-                class.def("meta", piece__meta);
-                class.def("gen", piece__gen);
-            });
+            class.def_self("new", piece__new);
+            class.def("track", piece__track);
+            class.def("instrument", piece__instrument);
+            class.def("meta", piece__meta);
+            class.def("gen", piece__gen);
         });
 }
 
@@ -116,12 +112,17 @@ impl Piece {
             }
         }
 
+        if let Some(v) = result_signal.iter().find(|&&v| v <= -1.0 || 1.0 <= v) {
+            println!("warning: audio is clipping. {v}");
+        }
+
         let spec = hound::WavSpec {
             channels: 1,
             sample_rate: 44100,
             bits_per_sample: 32,
             sample_format: hound::SampleFormat::Float,
         };
+
         let mut writer = hound::WavWriter::create("out.wav", spec).unwrap();
         result_signal
             .into_iter()

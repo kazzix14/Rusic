@@ -8,6 +8,7 @@ mod instrument;
 mod meta;
 mod piece;
 mod section;
+mod support;
 mod time;
 mod track;
 mod util;
@@ -60,12 +61,10 @@ macro_rules! ruby_class {
     };
 }
 
-module!(Jungrust);
+module!(Jungru);
 
 #[no_mangle]
 pub extern "C" fn init_jungru() {
-    GC::disable();
-
     let data_class = Class::from_existing("Object");
 
     Module::new("Jungru").define(|module| {
@@ -75,5 +74,6 @@ pub extern "C" fn init_jungru() {
         track::define(module, &data_class);
         section::define(module, &data_class);
         transfer::define(module, &data_class);
+        support::define(module, &data_class);
     });
 }

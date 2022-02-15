@@ -12,22 +12,18 @@ use self::transfer::Transfer;
 
 pub fn define(parent: &mut Module, data_class: &Class) {
     Class::new("Instrument", Some(data_class)).define(|class| {
-        class.define(|klass| {
-            klass.def("init", instrument__init);
-            klass.def("before_each_note", instrument__before_each_note);
-            klass.def("signal", instrument__signal);
-        });
+        class.def("init", instrument__init);
+        class.def("before_each_note", instrument__before_each_note);
+        class.def("signal", instrument__signal);
     });
 
-    parent
-        .define_nested_class("Instrument", Some(data_class))
-        .define(|class| {
-            class.define(|klass| {
-                klass.def("init", instrument__init);
-                klass.def("before_each_note", instrument__before_each_note);
-                klass.def("signal", instrument__signal);
-            });
-        });
+    //parent
+    //    .define_nested_class("Instrument", Some(data_class))
+    //    .define(|class| {
+    //        class.def("init", instrument__init);
+    //        class.def("before_each_note", instrument__before_each_note);
+    //        class.def("signal", instrument__signal);
+    //    });
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

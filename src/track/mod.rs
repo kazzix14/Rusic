@@ -9,20 +9,16 @@ use rutie::{
 
 pub fn define(parent: &mut Module, data_class: &Class) {
     Class::new("Track", Some(data_class)).define(|class| {
-        class.define(|klass| {
-            klass.def("symbol", track__symbol);
-            klass.def("section", track__section);
-        });
+            class.def("symbol", track__symbol);
+            class.def("section", track__section);
     });
 
-    parent
-        .define_nested_class("Track", Some(data_class))
-        .define(|class| {
-            class.define(|klass| {
-                klass.def("symbol", track__symbol);
-                klass.def("section", track__section);
-            });
-        });
+    //parent
+    //    .define_nested_class("Track", Some(data_class))
+    //    .define(|class| {
+    //        class.def("symbol", track__symbol);
+    //        class.def("section", track__section);
+    //    });
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

@@ -9,22 +9,18 @@ use rutie::{
 
 pub fn define(parent: &mut Module, data_class: &Class) {
     Class::new("Meta", Some(data_class)).define(|class| {
-        class.define(|klass| {
-            klass.def("bpm", meta__bpm);
-            klass.def("sample_rate", meta__sample_rate);
-            klass.def("composite", meta__composite);
-        });
+        class.def("bpm", meta__bpm);
+        class.def("sample_rate", meta__sample_rate);
+        class.def("composite", meta__composite);
     });
 
-    parent
-        .define_nested_class("Meta", Some(data_class))
-        .define(|class| {
-            class.define(|klass| {
-                klass.def("bpm", meta__bpm);
-                klass.def("sample_rate", meta__sample_rate);
-                klass.def("composite", meta__composite);
-            });
-        });
+    //parent
+    //    .define_nested_class("Meta", Some(data_class))
+    //    .define(|class| {
+    //            class.def("bpm", meta__bpm);
+    //            class.def("sample_rate", meta__sample_rate);
+    //            class.def("composite", meta__composite);
+    //    });
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
