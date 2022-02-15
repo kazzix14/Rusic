@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
-use crate::{instrument::Instrument, ruby_class, section::Section, util::ConvertOrPanic};
+use crate::{
+    instrument::Instrument, ruby_class, section::Section, time::Beat, util::ConvertOrPanic,
+};
 use itertools::Itertools;
+use num::{Rational32, ToPrimitive};
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
     Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, GC, VM,
@@ -9,8 +12,8 @@ use rutie::{
 
 pub fn define(parent: &mut Module, data_class: &Class) {
     Class::new("Track", Some(data_class)).define(|class| {
-            class.def("symbol", track__symbol);
-            class.def("section", track__section);
+        class.def("symbol", track__symbol);
+        class.def("section", track__section);
     });
 
     //parent
@@ -71,7 +74,7 @@ impl Track {
     }
 
     // returns (notes: Vec<(samples: Vec, offset, start)>, estimated_size)
-    pub fn gen(&self, bpm: f32, sample_rate: f32) -> (Vec<(Vec<f32>, f32, f32)>, usize) {
+    pub fn gen(&self, bpm: f32, sample_rate: f32) -> (Vec<(Vec<f32>, f32)>, usize) {
         let track = self.get_data(&*TRACK_WRAPPER);
         let mut instrument = track.instrument;
 
@@ -80,23 +83,38 @@ impl Track {
         let notes = track
             .composition
             .iter()
+            // map to sections
             .map(|section_name| {
                 track
                     .sections
                     .get(section_name)
                     .expect(&format!("could not find section: {section_name}"))
             })
+            // map to
             .map(|section| {
                 let section = section.inner();
                 let sheet = section.sheet.as_ref().expect("sheet is not set");
                 let division = section.division.expect("division is not set");
-                sheet.into_iter().map(|note| (division, note)).collect_vec()
+
+                // add/sub notes to set length to desired
+                if let Some(desired_len) = section.length {
+                    let note_count = (desired_len / division).to_u32().unwrap() as usize;
+
+                    sheet
+                        .into_iter()
+                        .map(|note| (division, note))
+                        .cycle()
+                        .take(note_count)
+                        .collect_vec()
+                } else {
+                    sheet.into_iter().map(|note| (division, note)).collect_vec()
+                }
             })
             .concat();
 
         let mut signals = Vec::new();
         let mut notes = notes.into_iter();
-        let mut time_elapsed = 0.0;
+        let mut time_started = 0.0;
         let mut end_time = 0.0;
         while let Some((beat, note)) = notes.next() {
             let offset = instrument.exec_before_each_note(note);
@@ -108,9 +126,9 @@ impl Track {
 
                 note_signal.push(signal);
             }
-            signals.push((note_signal, offset, time_elapsed));
-            time_elapsed += beat.seconds(bpm);
-            end_time = time_elapsed + time + offset;
+            signals.push((note_signal, time_started + offset));
+            time_started += beat.seconds(bpm);
+            end_time = time_started + time + offset;
         }
 
         let estimated_size = (end_time * sample_rate) as usize + 1;

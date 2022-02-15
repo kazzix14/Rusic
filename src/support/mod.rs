@@ -1,6 +1,6 @@
 use crate::{
     ruby_class,
-    time::{Beat, Time},
+    time::{Beat },
     util::ConvertOrPanic,
 };
 use itertools::Itertools;

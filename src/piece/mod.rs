@@ -84,7 +84,7 @@ impl Piece {
         let sample_rate = piece.meta.unwrap().inner().sample_rate;
 
         // (tracks: Vec<notes: Vec<(samples: Vec<f32>>, offset, start)>, tracks: Vec<estimated_size>)
-        let (signals, estimates): (Vec<Vec<(Vec<f32>, f32, f32)>>, Vec<usize>) = piece
+        let (signals, estimates): (Vec<Vec<(Vec<f32>, f32)>>, Vec<usize>) = piece
             .tracks
             .values()
             .map(|track| track.gen(piece.meta.unwrap().inner().bpm, sample_rate))
@@ -100,9 +100,8 @@ impl Piece {
         result_signal.iter_mut().for_each(|v| *v = 0.0);
 
         // put together
-        while let Some((signal, offset, start)) = signals.next() {
-            let start = start + offset;
-            let mut start = (start * sample_rate) as usize;
+        while let Some((signal, start_at)) = signals.next() {
+            let mut start = (start_at * sample_rate) as usize;
 
             let mut signal = signal.into_iter();
             while let Some(s) = signal.next() {

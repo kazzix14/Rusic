@@ -1,11 +1,8 @@
 use std::collections::HashMap;
 
-use crate::{
-    ruby_class,
-    time::{Beat, Time},
-    util::ConvertOrPanic,
-};
+use crate::{ruby_class, time::Beat, util::ConvertOrPanic};
 use itertools::Itertools;
+use num::Rational32;
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
     Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, GC, VM,
@@ -16,15 +13,8 @@ pub fn define(parent: &mut Module, data_class: &Class) {
         class.def("symbol", section__symbol);
         class.def("sheet", section__sheet);
         class.def("division", section__division);
+        class.def("length", section__length);
     });
-
-    //parent
-    //    .define_nested_class("Section", Some(data_class))
-    //    .define(|class| {
-    //        class.def("symbol", section__symbol);
-    //        class.def("sheet", section__sheet);
-    //        class.def("division", section__division);
-    //    });
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -45,6 +35,9 @@ methods!(
     },
     fn section__division(numerator: Integer, denominator: Integer) -> NilClass {
         Section::division(itself, numerator.unwrap(), denominator.unwrap())
+    },
+    fn section__length(numerator: Integer, denominator: Integer) -> NilClass {
+        Section::length(itself, numerator.unwrap(), denominator.unwrap())
     },
 );
 
@@ -86,10 +79,15 @@ impl Section {
     pub fn division(mut itself: Section, numerator: Integer, denominator: Integer) -> NilClass {
         let section = itself.get_data_mut(&*SECTION_WRAPPER);
 
-        section.division = Some(Beat {
-            numerator: numerator.to_u32(),
-            denominator: denominator.to_u32(),
-        });
+        section.division = Some(Rational32::new(numerator.to_i32(), denominator.to_i32()));
+
+        NilClass::new()
+    }
+
+    pub fn length(mut itself: Section, numerator: Integer, denominator: Integer) -> NilClass {
+        let section = itself.get_data_mut(&*SECTION_WRAPPER);
+
+        section.length = Some(Rational32::new(numerator.to_i32(), denominator.to_i32()));
 
         NilClass::new()
     }
@@ -103,13 +101,12 @@ impl Section {
     }
 }
 
-use crate::instrument::InstrumentInner;
-
 #[derive(Debug, Clone)]
 pub struct SectionInner {
     pub symbols: HashMap<String, Hash>,
     pub sheet: Option<Vec<Hash>>,
-    pub division: Option<Beat>,
+    pub division: Option<Rational32>,
+    pub length: Option<Rational32>,
 }
 
 impl SectionInner {
@@ -118,6 +115,7 @@ impl SectionInner {
             symbols: symbols,
             sheet: None,
             division: None,
+            length: None,
         }
     }
 
