@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use crate::{
-    instrument::Instrument, ruby_class, section::Section, time::Beat, util::ConvertOrPanic,
+    impl_inner, instrument::Instrument, ruby_class, section::Section, time::Beat,
+    util::ConvertOrPanic,
 };
 use itertools::Itertools;
 use num::{Rational32, ToPrimitive};
@@ -31,6 +32,7 @@ pub struct Track {
 }
 
 ruby_class!(Track);
+impl_inner!(Track, TrackInner, TRACK_WRAPPER);
 methods!(
     Track,
     itself,
@@ -134,10 +136,6 @@ impl Track {
         let estimated_size = (end_time * sample_rate) as usize + 1;
 
         (signals, estimated_size)
-    }
-
-    pub fn to_any_object(&self) -> AnyObject {
-        AnyObject::from(self.value())
     }
 }
 

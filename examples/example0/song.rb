@@ -38,7 +38,6 @@ j.instrument :kick do |i|
       sin(2400.0 * adsr(0.001, 0.005, 0.0, 0.01, 0.1, t, last: 0.01), t)
         .amp(adsr(0.001, 0.005, 0.0, 0.3, 0.05, t)))
       .amp(0.3)
-
   end
 end
 

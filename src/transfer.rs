@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{ruby_class, section::Section, track::TrackInner, util::ConvertOrPanic};
+use crate::{impl_inner, ruby_class, section::Section, track::TrackInner, util::ConvertOrPanic};
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
     Hash, Integer, Module, NilClass, Object, Proc, RString, Symbol, VerifiedObject, GC, VM,
@@ -31,6 +31,7 @@ pub struct Transfer {
 }
 
 ruby_class!(Transfer);
+impl_inner!(Transfer, TransferInner, TRANSFER_WRAPPER);
 methods!(
     Transfer,
     itself,
@@ -97,14 +98,6 @@ impl Transfer {
         transfer.out = signal;
 
         NilClass::new()
-    }
-
-    pub fn to_any_object(&self) -> AnyObject {
-        AnyObject::from(self.value())
-    }
-
-    pub fn inner(&self) -> &TransferInner {
-        self.get_data(&*TRANSFER_WRAPPER)
     }
 
     pub fn reset(&mut self) {

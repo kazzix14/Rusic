@@ -1,7 +1,7 @@
-use crate::{
-    ruby_class,
-    time::{Beat },
-    util::ConvertOrPanic,
+use crate::{ruby_class, time::Beat, util::ConvertOrPanic};
+use dasp::{
+    sample::SignedSample,
+    signal::{noise, noise_simplex, Noise},
 };
 use itertools::Itertools;
 use rutie::{
@@ -25,12 +25,12 @@ methods!(
         Float::new((hz.unwrap().to_f64() * std::f64::consts::TAU * t.unwrap().to_f64()).sin())
     },
     fn support__ru_saw(hz: Float, t: Float) -> Float {
-        Float::new((hz.unwrap().to_f64() * 2.0 * t.unwrap().to_f64()) % 2.0 - 1.0)
+        Float::new(((hz.unwrap().to_f64() * t.unwrap().to_f64()) % 1.0) * 2.0 - 1.0)
     },
     fn support__ru_sq(hz: Float, t: Float) -> Float {
         Float::new({
-            match hz.unwrap().to_f64() * t.unwrap().to_f64() % 1.0 - 0.5 {
-                f if 0.0 < f => 1.0,
+            match hz.unwrap().to_f64() * t.unwrap().to_f64() % 1.0 {
+                f if 0.5 < f => 1.0,
                 _ => -1.0,
             }
         })

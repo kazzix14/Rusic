@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
+    impl_inner,
     instrument::Instrument,
     meta::Meta,
     ruby_class,
@@ -40,6 +41,7 @@ pub struct Piece {
 }
 
 ruby_class!(Piece);
+impl_inner!(Piece, PieceInner, PIECE_WRAPPER);
 methods!(
     Piece,
     itself,

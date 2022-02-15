@@ -1,6 +1,8 @@
 use std::{collections::HashMap, str::Chars};
 
-use crate::{instrument::Instrument, ruby_class, section::Section, util::ConvertOrPanic};
+use crate::{
+    impl_inner, instrument::Instrument, ruby_class, section::Section, util::ConvertOrPanic,
+};
 use itertools::PeekingNext;
 use rutie::{
     class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
@@ -30,6 +32,7 @@ pub struct Meta {
 }
 
 ruby_class!(Meta);
+impl_inner!(Meta, MetaInner, META_WRAPPER);
 methods!(
     Meta,
     itself,
@@ -86,14 +89,6 @@ impl Meta {
         meta.composition = composition;
 
         NilClass::new()
-    }
-
-    pub fn to_any_object(&self) -> AnyObject {
-        AnyObject::from(self.value())
-    }
-
-    pub fn inner(&self) -> &MetaInner {
-        self.get_data(&*META_WRAPPER)
     }
 }
 

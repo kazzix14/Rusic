@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{ruby_class, time::Beat, util::ConvertOrPanic};
+use crate::{ruby_class, time::Beat, util::ConvertOrPanic, impl_inner};
 use itertools::Itertools;
 use num::Rational32;
 use rutie::{
@@ -24,6 +24,7 @@ pub struct Section {
 }
 
 ruby_class!(Section);
+impl_inner!(Section, SectionInner, SECTION_WRAPPER);
 methods!(
     Section,
     itself,
@@ -90,14 +91,6 @@ impl Section {
         section.length = Some(Rational32::new(numerator.to_i32(), denominator.to_i32()));
 
         NilClass::new()
-    }
-
-    pub fn inner(&self) -> &SectionInner {
-        self.get_data(&*SECTION_WRAPPER)
-    }
-
-    pub fn to_any_object(&self) -> AnyObject {
-        AnyObject::from(self.value())
     }
 }
 
