@@ -1,4 +1,4 @@
-use num::{rational::Ratio};
+use num::rational::Ratio;
 
 pub trait Beat {
     fn seconds(self, bpm: f32) -> f32;

@@ -1,4 +1,4 @@
-use rutie::{methods, Class, Float, module};
+use rutie::{methods, module, Class, Float};
 
 pub fn define_class(super_class: &Class) {
     //parent.define_nested_module("Support").define(|module| {
