@@ -1,16 +1,15 @@
-use crate::{ruby_class, time::Beat, util::ConvertOrPanic, impl_inner, inner::section::*};
+use crate::{impl_inner, inner::section::*, ruby_class};
 
 use std::collections::HashMap;
 
-use itertools::Itertools;
 use num::Rational32;
 use rutie::{
-    class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
-    Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, GC, VM,
+    methods, types::Value, AnyObject, Class, Hash, Integer, Module, NilClass, Object, RString,
+    Symbol, GC,
 };
 
-pub fn define(parent: &mut Module, data_class: &Class) {
-    Class::new("Section", Some(data_class)).define(|class| {
+pub fn define_class(super_class: &Class) {
+    Class::new("Section", Some(super_class)).define(|class| {
         class.def("symbol", section__symbol);
         class.def("sheet", section__sheet);
         class.def("division", section__division);

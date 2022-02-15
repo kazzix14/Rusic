@@ -1,10 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{impl_inner, ruby_class, section::Section, util::ConvertOrPanic};
-use rutie::{
-    class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
-    Hash, Integer, Module, NilClass, Object, Proc, RString, Symbol, VerifiedObject, GC, VM,
-};
+use rutie::AnyObject;
 
 #[derive(Debug, Clone)]
 pub struct TransferInner {

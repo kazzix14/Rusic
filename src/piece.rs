@@ -1,23 +1,13 @@
-use std::collections::HashMap;
-
 use crate::{
-    impl_inner,
-    instrument::Instrument,
-    meta::Meta,
-    ruby_class,
-    inner::track::*,
-    track::Track,
+    impl_inner, inner::piece::*, instrument::Instrument, meta::Meta, ruby_class, track::Track,
     util::ConvertOrPanic,
-    inner::piece::*,
-};
-use itertools::Itertools;
-use rutie::{
-    class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
-    Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, VM,
 };
 
-pub fn define(parent: &mut Module, data_class: &Class) {
-    Class::new("Piece", Some(data_class)).define(|class| {
+use itertools::Itertools;
+use rutie::{methods, types::Value, AnyObject, Class, NilClass, Object, Symbol, VM, Module};
+
+pub fn define_class(parent: &mut Module, super_class: &Class) {
+    Class::new("Piece", Some(super_class)).define(|class| {
         class.def_self("new", piece__new);
         class.def("track", piece__track);
         class.def("instrument", piece__instrument);
@@ -26,7 +16,7 @@ pub fn define(parent: &mut Module, data_class: &Class) {
     });
 
     parent
-        .define_nested_class("Piece", Some(data_class))
+        .define_nested_class("Piece", Some(super_class))
         .define(|class| {
             class.def_self("new", piece__new);
             class.def("track", piece__track);

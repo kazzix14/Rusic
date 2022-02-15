@@ -1,28 +1,17 @@
-use std::collections::HashMap;
-
 use crate::{
     impl_inner, inner::track::*, instrument::Instrument, ruby_class, section::Section, time::Beat,
     util::ConvertOrPanic,
 };
-use itertools::Itertools;
-use num::{Rational32, ToPrimitive};
-use rutie::{
-    class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Hash,
-    Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, GC, VM,
-};
 
-pub fn define(parent: &mut Module, data_class: &Class) {
-    Class::new("Track", Some(data_class)).define(|class| {
+use itertools::Itertools;
+use num::ToPrimitive;
+use rutie::{methods, types::Value, AnyObject, Class, Hash, NilClass, Object, Symbol, GC, VM};
+
+pub fn define_class(super_class: &Class) {
+    Class::new("Track", Some(super_class)).define(|class| {
         class.def("symbol", track__symbol);
         class.def("section", track__section);
     });
-
-    //parent
-    //    .define_nested_class("Track", Some(data_class))
-    //    .define(|class| {
-    //        class.def("symbol", track__symbol);
-    //        class.def("section", track__section);
-    //    });
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

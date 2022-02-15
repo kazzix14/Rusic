@@ -1,23 +1,19 @@
-use std::{collections::HashMap, str::Chars};
+use crate::{impl_inner, inner::meta::*, ruby_class};
 
-use crate::{
-    impl_inner, instrument::Instrument, ruby_class, section::Section, util::ConvertOrPanic, inner::meta::*,
-};
+use std::str::Chars;
+
 use itertools::PeekingNext;
-use rutie::{
-    class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
-    Hash, Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, VM,
-};
+use rutie::{methods, types::Value, AnyObject, Class, Float, Module, NilClass, Object, RString};
 
-pub fn define(parent: &mut Module, data_class: &Class) {
-    Class::new("Meta", Some(data_class)).define(|class| {
+pub fn define_class(super_class: &Class) {
+    Class::new("Meta", Some(super_class)).define(|class| {
         class.def("bpm", meta__bpm);
         class.def("sample_rate", meta__sample_rate);
         class.def("composite", meta__composite);
     });
 
     //parent
-    //    .define_nested_class("Meta", Some(data_class))
+    //    .define_nested_class("Meta", Some(super_class))
     //    .define(|class| {
     //            class.def("bpm", meta__bpm);
     //            class.def("sample_rate", meta__sample_rate);

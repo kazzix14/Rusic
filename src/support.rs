@@ -1,20 +1,11 @@
-use crate::{ruby_class, time::Beat, util::ConvertOrPanic};
-use dasp::{
-    sample::SignedSample,
-    signal::{noise, noise_simplex, Noise},
-};
-use itertools::Itertools;
-use rutie::{
-    class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
-    Hash, Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, GC, VM,
-};
+use rutie::{methods, Class, Float, Module, Object};
 
-pub fn define(parent: &mut Module, data_class: &Class) {
-    parent.define_nested_module("Support").define(|module| {
-        module.def("ru_sin", support__ru_sin);
-        module.def("ru_saw", support__ru_saw);
-        module.def("ru_sq", support__ru_sq);
-    });
+pub fn define_class(super_class: &Class) {
+    //parent.define_nested_module("Support").define(|module| {
+    //    module.def("ru_sin", support__ru_sin);
+    //    module.def("ru_saw", support__ru_saw);
+    //    module.def("ru_sq", support__ru_sq);
+    //});
 }
 
 module!(Support);

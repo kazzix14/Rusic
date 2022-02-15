@@ -1,4 +1,4 @@
-use rutie::{AnyObject, Object, TryConvert, VerifiedObject};
+use rutie::{Object, VerifiedObject};
 
 pub trait ConvertOrPanic<T> {
     fn convert_or_panic(self) -> T;

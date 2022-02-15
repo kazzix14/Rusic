@@ -1,14 +1,3 @@
-use std::{collections::HashMap, str::Chars};
-
-use crate::{
-    impl_inner, instrument::Instrument, ruby_class, section::Section, util::ConvertOrPanic,
-};
-use itertools::PeekingNext;
-use rutie::{
-    class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
-    Hash, Integer, Module, NilClass, Object, RString, Symbol, VerifiedObject, VM,
-};
-
 #[derive(Debug, Clone)]
 pub struct MetaInner {
     pub bpm: f32,

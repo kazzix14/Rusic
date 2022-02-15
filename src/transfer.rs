@@ -1,16 +1,9 @@
-use std::collections::HashMap;
+use crate::{impl_inner, inner::transfer::*, ruby_class, util::ConvertOrPanic};
 
-use crate::{
-    impl_inner, inner::track::TrackInner, inner::transfer::*, ruby_class, section::Section,
-    util::ConvertOrPanic,
-};
-use rutie::{
-    class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
-    Hash, Integer, Module, NilClass, Object, Proc, RString, Symbol, VerifiedObject, GC, VM,
-};
+use rutie::{methods, types::Value, AnyObject, Class, Float, Module, NilClass, Object, Symbol, GC};
 
-pub fn define(parent: &mut Module, data_class: &Class) {
-    Class::new("Transfer", Some(data_class)).define(|class| {
+pub fn define_class(super_class: &Class) {
+    Class::new("Transfer", Some(super_class)).define(|class| {
         class.def("load", transfer__load);
         class.def("save", transfer__save);
         class.def("offset", transfer__offset);
@@ -18,7 +11,7 @@ pub fn define(parent: &mut Module, data_class: &Class) {
     });
 
     //parent
-    //    .define_nested_class("Transfer", Some(data_class))
+    //    .define_nested_class("Transfer", Some(super_class))
     //    .define(|class| {
     //        class.def("load", transfer__load);
     //        class.def("save", transfer__save);

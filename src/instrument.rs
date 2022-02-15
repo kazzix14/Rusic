@@ -1,22 +1,19 @@
-use std::collections::HashMap;
-
-use crate::{impl_inner, ruby_class, section::Section, util::ConvertOrPanic, inner::instrument::*};
+use crate::{impl_inner, inner::instrument::*, ruby_class};
 use rutie::{
-    class, methods, types::Value, wrappable_struct, AnyException, AnyObject, Array, Class, Float,
-    Hash, Integer, Module, NilClass, Object, Proc, RString, Symbol, VerifiedObject, GC, VM,
+    methods, types::Value, AnyObject, Class, Float, Hash, Module, NilClass, Object, GC, VM,
 };
 
 use crate::transfer::*;
 
-pub fn define(parent: &mut Module, data_class: &Class) {
-    Class::new("Instrument", Some(data_class)).define(|class| {
+pub fn define_class(super_class: &Class) {
+    Class::new("Instrument", Some(super_class)).define(|class| {
         class.def("init", instrument__init);
         class.def("before_each_note", instrument__before_each_note);
         class.def("signal", instrument__signal);
     });
 
     //parent
-    //    .define_nested_class("Instrument", Some(data_class))
+    //    .define_nested_class("Instrument", Some(super_class))
     //    .define(|class| {
     //        class.def("init", instrument__init);
     //        class.def("before_each_note", instrument__before_each_note);

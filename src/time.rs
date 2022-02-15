@@ -1,6 +1,4 @@
-use std::ops::Mul;
-
-use num::{rational::Ratio, Integer};
+use num::{rational::Ratio};
 
 pub trait Beat {
     fn seconds(self, bpm: f32) -> f32;

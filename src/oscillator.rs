@@ -1,5 +1,4 @@
-use crate::inner::oscillator::*;
-use crate::{impl_inner, ruby_class};
+use crate::{impl_inner, ruby_class, inner::oscillator::*};
 
 use rutie::{methods, types::Value, AnyObject, Class, Float, Object};
 

@@ -32,12 +32,9 @@ j = ::Jungru::Piece.new
 
 j.instrument :kick do |i|
   i.signal do |i, n, l, t|
-    i.out \
-      (sin(240.0 * adsr(0.01, 0.01, 0.1, 0.3, 0.4, t, last: 0.01), t)
-        .amp(adsr(0.01, 0.05, 0.1, 0.3, 0.5, t)) + \
-      sin(2400.0 * adsr(0.001, 0.005, 0.0, 0.01, 0.1, t, last: 0.01), t)
-        .amp(adsr(0.001, 0.005, 0.0, 0.3, 0.05, t)))
-      .amp(0.3)
+    if t < l
+      i.out Math.sin(440.0 * t)
+    end
   end
 end
 

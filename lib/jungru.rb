@@ -81,16 +81,16 @@ module Jungru
       end
     end
 
-    def sin(hz, t)
-      ru_sin(hz.to_f, t)
-    end
+    #def sin(hz, t)
+    #  ru_sin(hz.to_f, t)
+    #end
 
-    def saw(hz, t)
-      ru_saw(hz.to_f, t)
-    end
+    #def saw(hz, t)
+    #  ru_saw(hz.to_f, t)
+    #end
 
-    def sq(hz, t)
-      ru_sq(hz.to_f, t)
-    end
+    #def sq(hz, t)
+    #  ru_sq(hz.to_f, t)
+    #end
   end
 end
