@@ -117,16 +117,17 @@ impl Piece {
         }
 
         let spec = hound::WavSpec {
-            channels: 1,
+            channels: 2,
             sample_rate: 44100,
             bits_per_sample: 32,
             sample_format: hound::SampleFormat::Float,
         };
 
         let mut writer = hound::WavWriter::create("out.wav", spec).unwrap();
-        result_signal
-            .into_iter()
-            .for_each(|s| writer.write_sample(s).unwrap());
+        result_signal.into_iter().for_each(|s| {
+            writer.write_sample(s).unwrap();
+            writer.write_sample(s).unwrap();
+        });
         writer.finalize().unwrap();
 
         NilClass::new()
