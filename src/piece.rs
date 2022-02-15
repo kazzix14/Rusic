@@ -5,8 +5,10 @@ use crate::{
     instrument::Instrument,
     meta::Meta,
     ruby_class,
-    track::{Track, TRACK_WRAPPER},
+    inner::track::*,
+    track::Track,
     util::ConvertOrPanic,
+    inner::piece::*,
 };
 use itertools::Itertools;
 use rutie::{
@@ -177,22 +179,3 @@ impl Piece {
         NilClass::new()
     }
 }
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct PieceInner {
-    meta: Option<Meta>,
-    instruments: HashMap<String, Instrument>,
-    tracks: HashMap<String, Track>,
-}
-
-impl PieceInner {
-    pub fn new() -> Self {
-        Self {
-            meta: None,
-            instruments: HashMap::new(),
-            tracks: HashMap::new(),
-        }
-    }
-}
-
-wrappable_struct!(PieceInner, PieceWrapper, PIECE_WRAPPER);
