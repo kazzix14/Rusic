@@ -1,4 +1,4 @@
-wrappable_struct!(OscillatorInner, OscillatorWrapper, OSCILLATOR_WRAPPER);
+use rutie::wrappable_struct;
 
 #[derive(Debug, Clone, Copy)]
 pub struct OscillatorInner {
@@ -15,3 +15,4 @@ impl OscillatorInner {
     }
 }
 
+wrappable_struct!(OscillatorInner, OscillatorWrapper, OSCILLATOR_WRAPPER);

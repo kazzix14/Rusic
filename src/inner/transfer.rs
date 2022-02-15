@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use rutie::AnyObject;
+use rutie::{wrappable_struct, AnyObject};
 
 #[derive(Debug, Clone)]
 pub struct TransferInner {

@@ -1,8 +1,3 @@
-#[macro_use]
-extern crate rutie;
-#[macro_use]
-extern crate lazy_static;
-
 mod inner;
 mod instrument;
 mod meta;
@@ -13,7 +8,6 @@ mod support;
 mod time;
 mod track;
 mod transfer;
-#[macro_use]
 mod util;
 
 use rutie::{module, Class, Module, Object};

@@ -26,25 +26,6 @@ pub struct Transfer {
     value: Value,
 }
 
-ruby_class!(Transfer);
-impl_inner!(Transfer, TransferInner, TRANSFER_WRAPPER);
-methods!(
-    Transfer,
-    itself,
-    fn transfer__load(key: Symbol) -> AnyObject {
-        Transfer::load(itself, key.unwrap())
-    },
-    fn transfer__save(key: Symbol, value: AnyObject) -> NilClass {
-        Transfer::save(itself, key.unwrap(), value.unwrap())
-    },
-    fn transfer__offset(offset: Float) -> NilClass {
-        Transfer::offset(itself, offset.unwrap())
-    },
-    fn transfer__out(signal: AnyObject) -> NilClass {
-        Transfer::out(itself, signal.unwrap())
-    },
-);
-
 impl Transfer {
     pub fn new() -> AnyObject {
         let inner = TransferInner::new();
@@ -100,3 +81,22 @@ impl Transfer {
         self.get_data_mut(&*TRANSFER_WRAPPER).out = None;
     }
 }
+
+ruby_class!(Transfer);
+impl_inner!(Transfer, TransferInner, TRANSFER_WRAPPER);
+methods!(
+    Transfer,
+    itself,
+    fn transfer__load(key: Symbol) -> AnyObject {
+        Transfer::load(itself, key.unwrap())
+    },
+    fn transfer__save(key: Symbol, value: AnyObject) -> NilClass {
+        Transfer::save(itself, key.unwrap(), value.unwrap())
+    },
+    fn transfer__offset(offset: Float) -> NilClass {
+        Transfer::offset(itself, offset.unwrap())
+    },
+    fn transfer__out(signal: AnyObject) -> NilClass {
+        Transfer::out(itself, signal.unwrap())
+    },
+);

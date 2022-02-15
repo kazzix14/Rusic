@@ -1,3 +1,5 @@
+use rutie::wrappable_struct;
+
 #[derive(Debug, Clone)]
 pub struct MetaInner {
     pub bpm: f32,

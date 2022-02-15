@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use num::Rational32;
-use rutie::Hash;
+use rutie::{wrappable_struct, Hash};
 
 #[derive(Debug, Clone)]
 pub struct SectionInner {

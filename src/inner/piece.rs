@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use crate::{instrument::Instrument, meta::Meta, track::Track};
 
+use rutie::wrappable_struct;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct PieceInner {
     pub meta: Option<Meta>,

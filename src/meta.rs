@@ -27,22 +27,6 @@ pub struct Meta {
     value: Value,
 }
 
-ruby_class!(Meta);
-impl_inner!(Meta, MetaInner, META_WRAPPER);
-methods!(
-    Meta,
-    itself,
-    fn meta__bpm(bpm: Float) -> NilClass {
-        Meta::bpm(itself, bpm.unwrap())
-    },
-    fn meta__sample_rate(sample_rate: Float) -> NilClass {
-        Meta::sample_rate(itself, sample_rate.unwrap())
-    },
-    fn meta__composite(composition: RString) -> NilClass {
-        Meta::composite(itself, composition.unwrap().to_string())
-    },
-);
-
 impl Meta {
     pub fn new() -> AnyObject {
         let inner = MetaInner::new();
@@ -97,3 +81,19 @@ fn read_alphanumeric(initial: char, source: &mut Chars) -> String {
 
     s
 }
+
+ruby_class!(Meta);
+impl_inner!(Meta, MetaInner, META_WRAPPER);
+methods!(
+    Meta,
+    itself,
+    fn meta__bpm(bpm: Float) -> NilClass {
+        Meta::bpm(itself, bpm.unwrap())
+    },
+    fn meta__sample_rate(sample_rate: Float) -> NilClass {
+        Meta::sample_rate(itself, sample_rate.unwrap())
+    },
+    fn meta__composite(composition: RString) -> NilClass {
+        Meta::composite(itself, composition.unwrap().to_string())
+    },
+);

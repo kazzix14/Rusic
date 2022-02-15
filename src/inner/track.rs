@@ -2,7 +2,7 @@ use crate::{instrument::Instrument, section::Section};
 
 use std::collections::HashMap;
 
-use rutie::Hash;
+use rutie::{wrappable_struct, Hash};
 
 #[derive(Debug)]
 pub struct TrackInner {

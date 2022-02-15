@@ -4,7 +4,7 @@ use crate::{
 };
 
 use itertools::Itertools;
-use rutie::{methods, types::Value, AnyObject, Class, NilClass, Object, Symbol, VM, Module};
+use rutie::{methods, types::Value, AnyObject, Class, Module, NilClass, Object, Symbol, VM};
 
 pub fn define_class(parent: &mut Module, super_class: &Class) {
     Class::new("Piece", Some(super_class)).define(|class| {
@@ -31,39 +31,6 @@ pub fn define_class(parent: &mut Module, super_class: &Class) {
 pub struct Piece {
     value: Value,
 }
-
-ruby_class!(Piece);
-impl_inner!(Piece, PieceInner, PIECE_WRAPPER);
-methods!(
-    Piece,
-    itself,
-    fn piece__new() -> AnyObject {
-        Piece::new()
-    },
-    fn piece__track(name: Symbol, instrument_name: Symbol) -> NilClass {
-        Piece::track(
-            itself,
-            name.expect("track name must be specified in Symbol")
-                .to_string(),
-            instrument_name
-                .expect("instrument must be specified in Symbol")
-                .to_string(),
-        )
-    },
-    fn piece__instrument(name: Symbol) -> NilClass {
-        Piece::instrument(
-            itself,
-            name.expect("instrument must be specified in Symbol")
-                .to_string(),
-        )
-    },
-    fn piece__meta() -> NilClass {
-        Piece::meta(itself)
-    },
-    fn piece__gen() -> NilClass {
-        Piece::gen(itself)
-    }
-);
 
 impl Piece {
     pub fn new() -> AnyObject {
@@ -169,3 +136,36 @@ impl Piece {
         NilClass::new()
     }
 }
+
+ruby_class!(Piece);
+impl_inner!(Piece, PieceInner, PIECE_WRAPPER);
+methods!(
+    Piece,
+    itself,
+    fn piece__new() -> AnyObject {
+        Piece::new()
+    },
+    fn piece__track(name: Symbol, instrument_name: Symbol) -> NilClass {
+        Piece::track(
+            itself,
+            name.expect("track name must be specified in Symbol")
+                .to_string(),
+            instrument_name
+                .expect("instrument must be specified in Symbol")
+                .to_string(),
+        )
+    },
+    fn piece__instrument(name: Symbol) -> NilClass {
+        Piece::instrument(
+            itself,
+            name.expect("instrument must be specified in Symbol")
+                .to_string(),
+        )
+    },
+    fn piece__meta() -> NilClass {
+        Piece::meta(itself)
+    },
+    fn piece__gen() -> NilClass {
+        Piece::gen(itself)
+    }
+);

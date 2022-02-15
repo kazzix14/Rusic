@@ -1,8 +1,7 @@
 use crate::{transfer::*, util::ConvertOrPanic};
 
-use rutie::{Proc};
+use rutie::{wrappable_struct, Proc};
 
-wrappable_struct!(InstrumentInner, InstrumentWrapper, INSTRUMENT_WRAPPER);
 #[derive(Debug)]
 pub struct InstrumentInner {
     pub init_fn: Option<Proc>,
@@ -21,3 +20,5 @@ impl InstrumentInner {
         }
     }
 }
+
+wrappable_struct!(InstrumentInner, InstrumentWrapper, INSTRUMENT_WRAPPER);

@@ -20,23 +20,6 @@ pub struct Track {
     value: Value,
 }
 
-ruby_class!(Track);
-impl_inner!(Track, TrackInner, TRACK_WRAPPER);
-methods!(
-    Track,
-    itself,
-    fn track__symbol(key: Symbol, value: Hash) -> NilClass {
-        Track::symbol(itself, key.unwrap(), value.unwrap())
-    },
-    fn track__section(name: Symbol) -> NilClass {
-        let name = name
-            .expect("section name must be specified in Symbol")
-            .to_string();
-
-        Track::section(itself, name)
-    },
-);
-
 impl Track {
     pub fn new(instrument: Instrument, composition: Vec<String>) -> AnyObject {
         let inner = TrackInner::new(instrument, composition);
@@ -127,3 +110,20 @@ impl Track {
         (signals, estimated_size)
     }
 }
+
+ruby_class!(Track);
+impl_inner!(Track, TrackInner, TRACK_WRAPPER);
+methods!(
+    Track,
+    itself,
+    fn track__symbol(key: Symbol, value: Hash) -> NilClass {
+        Track::symbol(itself, key.unwrap(), value.unwrap())
+    },
+    fn track__section(name: Symbol) -> NilClass {
+        let name = name
+            .expect("section name must be specified in Symbol")
+            .to_string();
+
+        Track::section(itself, name)
+    },
+);

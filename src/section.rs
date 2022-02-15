@@ -23,25 +23,6 @@ pub struct Section {
     value: Value,
 }
 
-ruby_class!(Section);
-impl_inner!(Section, SectionInner, SECTION_WRAPPER);
-methods!(
-    Section,
-    itself,
-    fn section__symbol(key: Symbol, value: Hash) -> NilClass {
-        Section::symbol(itself, key.unwrap(), value.unwrap())
-    },
-    fn section__sheet(sheet: RString) -> NilClass {
-        Section::sheet(itself, sheet.unwrap())
-    },
-    fn section__division(numerator: Integer, denominator: Integer) -> NilClass {
-        Section::division(itself, numerator.unwrap(), denominator.unwrap())
-    },
-    fn section__length(numerator: Integer, denominator: Integer) -> NilClass {
-        Section::length(itself, numerator.unwrap(), denominator.unwrap())
-    },
-);
-
 impl Section {
     pub fn new(symbols: HashMap<String, Hash>) -> AnyObject {
         let inner = SectionInner::new(symbols);
@@ -93,3 +74,22 @@ impl Section {
         NilClass::new()
     }
 }
+
+ruby_class!(Section);
+impl_inner!(Section, SectionInner, SECTION_WRAPPER);
+methods!(
+    Section,
+    itself,
+    fn section__symbol(key: Symbol, value: Hash) -> NilClass {
+        Section::symbol(itself, key.unwrap(), value.unwrap())
+    },
+    fn section__sheet(sheet: RString) -> NilClass {
+        Section::sheet(itself, sheet.unwrap())
+    },
+    fn section__division(numerator: Integer, denominator: Integer) -> NilClass {
+        Section::division(itself, numerator.unwrap(), denominator.unwrap())
+    },
+    fn section__length(numerator: Integer, denominator: Integer) -> NilClass {
+        Section::length(itself, numerator.unwrap(), denominator.unwrap())
+    },
+);

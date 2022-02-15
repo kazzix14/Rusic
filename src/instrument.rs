@@ -27,22 +27,6 @@ pub struct Instrument {
     value: Value,
 }
 
-ruby_class!(Instrument);
-impl_inner!(Instrument, InstrumentInner, INSTRUMENT_WRAPPER);
-methods!(
-    Instrument,
-    itself,
-    fn instrument__init() -> NilClass {
-        Instrument::init(itself)
-    },
-    fn instrument__before_each_note() -> NilClass {
-        Instrument::before_each_note(itself)
-    },
-    fn instrument__signal() -> NilClass {
-        Instrument::signal(itself)
-    },
-);
-
 impl Instrument {
     pub fn new() -> AnyObject {
         let inner = InstrumentInner::new();
@@ -123,3 +107,19 @@ impl Instrument {
         transfer.inner().out
     }
 }
+
+ruby_class!(Instrument);
+impl_inner!(Instrument, InstrumentInner, INSTRUMENT_WRAPPER);
+methods!(
+    Instrument,
+    itself,
+    fn instrument__init() -> NilClass {
+        Instrument::init(itself)
+    },
+    fn instrument__before_each_note() -> NilClass {
+        Instrument::before_each_note(itself)
+    },
+    fn instrument__signal() -> NilClass {
+        Instrument::signal(itself)
+    },
+);
