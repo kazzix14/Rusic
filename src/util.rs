@@ -55,6 +55,7 @@ macro_rules! ruby_class {
             }
         }
         impl $class {
+            #[allow(dead_code)]
             pub fn to_any_object(&self) -> AnyObject {
                 AnyObject::from(self.value())
             }
@@ -66,10 +67,12 @@ macro_rules! ruby_class {
 macro_rules! impl_inner {
     ($class: ident, $inner: ident, $wrapper: ident) => {
         impl $class {
+            #[allow(dead_code)]
             pub fn inner(&self) -> &$inner {
                 self.get_data(&*$wrapper)
             }
 
+            #[allow(dead_code)]
             pub fn inner_mut(&mut self) -> &mut $inner {
                 self.get_data_mut(&*$wrapper)
             }

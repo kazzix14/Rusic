@@ -1,9 +1,5 @@
 use crate::{impl_inner, inner::instrument::*, ruby_class};
-use rutie::{
-    methods, types::Value, AnyObject, Class, Float, Hash, Module, NilClass, Object, GC, VM,
-};
-
-use crate::transfer::*;
+use rutie::{methods, types::Value, AnyObject, Class, Float, Hash, NilClass, Object, GC, VM};
 
 pub fn define_class(super_class: &Class) {
     Class::new("Instrument", Some(super_class)).define(|class| {
@@ -34,8 +30,8 @@ impl Instrument {
         Class::from_existing("Instrument").wrap_data(inner, &*INSTRUMENT_WRAPPER)
     }
 
-    pub fn init(mut itself: Instrument) -> NilClass {
-        let instrument = itself.get_data_mut(&*INSTRUMENT_WRAPPER);
+    pub fn init(&mut self) -> NilClass {
+        let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
 
         let init_fn = VM::block_proc();
         GC::register_mark(&init_fn);
@@ -44,8 +40,8 @@ impl Instrument {
         NilClass::new()
     }
 
-    pub fn before_each_note(mut itself: Instrument) -> NilClass {
-        let instrument = itself.get_data_mut(&*INSTRUMENT_WRAPPER);
+    pub fn before_each_note(&mut self) -> NilClass {
+        let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
 
         let before_each_note_fn = VM::block_proc();
         GC::register_mark(&before_each_note_fn);
@@ -54,8 +50,8 @@ impl Instrument {
         NilClass::new()
     }
 
-    pub fn signal(mut itself: Instrument) -> NilClass {
-        let instrument = itself.get_data_mut(&*INSTRUMENT_WRAPPER);
+    pub fn signal(&mut self) -> NilClass {
+        let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
 
         let signal_fn = VM::block_proc();
         GC::register_mark(&signal_fn);
@@ -114,12 +110,12 @@ methods!(
     Instrument,
     itself,
     fn instrument_init() -> NilClass {
-        Instrument::init(itself)
+        itself.init()
     },
     fn instrument_before_each_note() -> NilClass {
-        Instrument::before_each_note(itself)
+        itself.before_each_note()
     },
     fn instrument_signal() -> NilClass {
-        Instrument::signal(itself)
+        itself.signal()
     },
 );

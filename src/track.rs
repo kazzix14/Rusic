@@ -27,8 +27,8 @@ impl Track {
         Class::from_existing("Track").wrap_data(inner, &*TRACK_WRAPPER)
     }
 
-    pub fn symbol(mut itself: Track, key: Symbol, value: Hash) -> NilClass {
-        let track = itself.get_data_mut(&*TRACK_WRAPPER);
+    pub fn symbol(&mut self, key: Symbol, value: Hash) -> NilClass {
+        let track = self.get_data_mut(&*TRACK_WRAPPER);
 
         GC::register_mark(&value);
         track.symbols.insert(key.to_string(), value);
@@ -36,8 +36,8 @@ impl Track {
         NilClass::new()
     }
 
-    pub fn section(mut itself: Track, name: String) -> NilClass {
-        let track = itself.get_data_mut(&*TRACK_WRAPPER);
+    pub fn section(&mut self, name: String) -> NilClass {
+        let track = self.get_data_mut(&*TRACK_WRAPPER);
         let section = Section::new(track.symbols.clone());
         let section = section.convert_or_panic();
         VM::yield_object(section);
@@ -117,13 +117,13 @@ methods!(
     Track,
     itself,
     fn track_symbol(key: Symbol, value: Hash) -> NilClass {
-        Track::symbol(itself, key.unwrap(), value.unwrap())
+        itself.symbol(key.unwrap(), value.unwrap())
     },
     fn track_section(name: Symbol) -> NilClass {
         let name = name
             .expect("section name must be specified in Symbol")
             .to_string();
 
-        Track::section(itself, name)
+        itself.section(name)
     },
 );

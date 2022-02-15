@@ -4,8 +4,7 @@ use std::collections::HashMap;
 
 use num::Rational32;
 use rutie::{
-    methods, types::Value, AnyObject, Class, Hash, Integer, Module, NilClass, Object, RString,
-    Symbol, GC,
+    methods, types::Value, AnyObject, Class, Hash, Integer, NilClass, Object, RString, Symbol, GC,
 };
 
 pub fn define_class(super_class: &Class) {
@@ -30,8 +29,8 @@ impl Section {
         Class::from_existing("Section").wrap_data(inner, &*SECTION_WRAPPER)
     }
 
-    pub fn symbol(mut itself: Section, key: Symbol, value: Hash) -> NilClass {
-        let section = itself.get_data_mut(&*SECTION_WRAPPER);
+    pub fn symbol(&mut self, key: Symbol, value: Hash) -> NilClass {
+        let section = self.get_data_mut(&*SECTION_WRAPPER);
 
         GC::register_mark(&value);
         section.symbols.insert(key.to_string(), value);
@@ -39,8 +38,8 @@ impl Section {
         NilClass::new()
     }
 
-    pub fn sheet(mut itself: Section, sheet: RString) -> NilClass {
-        let section = itself.get_data_mut(&*SECTION_WRAPPER);
+    pub fn sheet(&mut self, sheet: RString) -> NilClass {
+        let section = self.get_data_mut(&*SECTION_WRAPPER);
 
         let sheet = sheet.to_string();
         let sheet = sheet
@@ -58,16 +57,16 @@ impl Section {
         NilClass::new()
     }
 
-    pub fn division(mut itself: Section, numerator: Integer, denominator: Integer) -> NilClass {
-        let section = itself.get_data_mut(&*SECTION_WRAPPER);
+    pub fn division(&mut self, numerator: Integer, denominator: Integer) -> NilClass {
+        let section = self.get_data_mut(&*SECTION_WRAPPER);
 
         section.division = Some(Rational32::new(numerator.to_i32(), denominator.to_i32()));
 
         NilClass::new()
     }
 
-    pub fn length(mut itself: Section, numerator: Integer, denominator: Integer) -> NilClass {
-        let section = itself.get_data_mut(&*SECTION_WRAPPER);
+    pub fn length(&mut self, numerator: Integer, denominator: Integer) -> NilClass {
+        let section = self.get_data_mut(&*SECTION_WRAPPER);
 
         section.length = Some(Rational32::new(numerator.to_i32(), denominator.to_i32()));
 
@@ -81,15 +80,15 @@ methods!(
     Section,
     itself,
     fn section_symbol(key: Symbol, value: Hash) -> NilClass {
-        Section::symbol(itself, key.unwrap(), value.unwrap())
+        itself.symbol(key.unwrap(), value.unwrap())
     },
     fn section_sheet(sheet: RString) -> NilClass {
-        Section::sheet(itself, sheet.unwrap())
+        itself.sheet(sheet.unwrap())
     },
     fn section_division(numerator: Integer, denominator: Integer) -> NilClass {
-        Section::division(itself, numerator.unwrap(), denominator.unwrap())
+        itself.division(numerator.unwrap(), denominator.unwrap())
     },
     fn section_length(numerator: Integer, denominator: Integer) -> NilClass {
-        Section::length(itself, numerator.unwrap(), denominator.unwrap())
+        itself.length(numerator.unwrap(), denominator.unwrap())
     },
 );

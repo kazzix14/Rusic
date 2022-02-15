@@ -1,6 +1,6 @@
 use crate::{impl_inner, inner::transfer::*, ruby_class, util::ConvertOrPanic};
 
-use rutie::{methods, types::Value, AnyObject, Class, Float, Module, NilClass, Object, Symbol, GC};
+use rutie::{methods, types::Value, AnyObject, Class, Float, NilClass, Object, Symbol, GC};
 
 pub fn define_class(super_class: &Class) {
     Class::new("Transfer", Some(super_class)).define(|class| {
@@ -33,8 +33,8 @@ impl Transfer {
         Class::from_existing("Transfer").wrap_data(inner, &*TRANSFER_WRAPPER)
     }
 
-    pub fn load(mut itself: Transfer, key: Symbol) -> AnyObject {
-        let transfer = itself.get_data_mut(&*TRANSFER_WRAPPER);
+    pub fn load(&mut self, key: Symbol) -> AnyObject {
+        let transfer = self.get_data_mut(&*TRANSFER_WRAPPER);
 
         transfer
             .store
@@ -43,8 +43,8 @@ impl Transfer {
             .expect("key: `{key}` does not exist")
     }
 
-    pub fn save(mut itself: Transfer, key: Symbol, value: AnyObject) -> NilClass {
-        let transfer = itself.get_data_mut(&*TRANSFER_WRAPPER);
+    pub fn save(&mut self, key: Symbol, value: AnyObject) -> NilClass {
+        let transfer = self.get_data_mut(&*TRANSFER_WRAPPER);
 
         GC::register_mark(&value);
         transfer.store.insert(key.to_string(), value);
@@ -52,16 +52,16 @@ impl Transfer {
         NilClass::new()
     }
 
-    pub fn offset(mut itself: Transfer, offset: Float) -> NilClass {
-        let transfer = itself.get_data_mut(&*TRANSFER_WRAPPER);
+    pub fn offset(&mut self, offset: Float) -> NilClass {
+        let transfer = self.get_data_mut(&*TRANSFER_WRAPPER);
 
         transfer.offset = offset.to_f64() as f32;
 
         NilClass::new()
     }
 
-    pub fn out(mut itself: Transfer, signal: AnyObject) -> NilClass {
-        let transfer = itself.get_data_mut(&*TRANSFER_WRAPPER);
+    pub fn out(&mut self, signal: AnyObject) -> NilClass {
+        let transfer = self.get_data_mut(&*TRANSFER_WRAPPER);
 
         let signal = match signal {
             _ if Class::from_existing("NilClass").case_equals(&signal) => None,
@@ -88,15 +88,15 @@ methods!(
     Transfer,
     itself,
     fn transfer_load(key: Symbol) -> AnyObject {
-        Transfer::load(itself, key.unwrap())
+        itself.load(key.unwrap())
     },
     fn transfer_save(key: Symbol, value: AnyObject) -> NilClass {
-        Transfer::save(itself, key.unwrap(), value.unwrap())
+        itself.save(key.unwrap(), value.unwrap())
     },
     fn transfer_offset(offset: Float) -> NilClass {
-        Transfer::offset(itself, offset.unwrap())
+        itself.offset(offset.unwrap())
     },
     fn transfer_out(signal: AnyObject) -> NilClass {
-        Transfer::out(itself, signal.unwrap())
+        itself.out(signal.unwrap())
     },
 );

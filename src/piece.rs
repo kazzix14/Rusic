@@ -39,8 +39,8 @@ impl Piece {
         Class::from_existing("Piece").wrap_data(inner, &*PIECE_WRAPPER)
     }
 
-    pub fn gen(mut itself: Piece) -> NilClass {
-        let piece = itself.get_data_mut(&*PIECE_WRAPPER);
+    pub fn gen(&mut self) -> NilClass {
+        let piece = self.get_data_mut(&*PIECE_WRAPPER);
 
         let sample_rate = piece.meta.unwrap().inner().sample_rate;
 
@@ -93,8 +93,8 @@ impl Piece {
         NilClass::new()
     }
 
-    pub fn meta(mut itself: Piece) -> NilClass {
-        let piece = itself.get_data_mut(&*PIECE_WRAPPER);
+    pub fn meta(&mut self) -> NilClass {
+        let piece = self.get_data_mut(&*PIECE_WRAPPER);
         let meta = Meta::new();
         let meta = meta.convert_or_panic();
 
@@ -105,8 +105,8 @@ impl Piece {
         NilClass::new()
     }
 
-    pub fn track(mut itself: Piece, name: String, instrument_name: String) -> NilClass {
-        let piece = itself.get_data_mut(&*PIECE_WRAPPER);
+    pub fn track(&mut self, name: String, instrument_name: String) -> NilClass {
+        let piece = self.get_data_mut(&*PIECE_WRAPPER);
         let instrument = piece
             .instruments
             .get(&instrument_name)
@@ -124,8 +124,8 @@ impl Piece {
         NilClass::new()
     }
 
-    pub fn instrument(mut itself: Piece, name: String) -> NilClass {
-        let piece = itself.get_data_mut(&*PIECE_WRAPPER);
+    pub fn instrument(&mut self, name: String) -> NilClass {
+        let piece = self.get_data_mut(&*PIECE_WRAPPER);
 
         let instrument = Instrument::new();
         let instrument = instrument.convert_or_panic();
@@ -146,8 +146,7 @@ methods!(
         Piece::new()
     },
     fn piece_track(name: Symbol, instrument_name: Symbol) -> NilClass {
-        Piece::track(
-            itself,
+        itself.track(
             name.expect("track name must be specified in Symbol")
                 .to_string(),
             instrument_name
@@ -156,16 +155,15 @@ methods!(
         )
     },
     fn piece_instrument(name: Symbol) -> NilClass {
-        Piece::instrument(
-            itself,
+        itself.instrument(
             name.expect("instrument must be specified in Symbol")
                 .to_string(),
         )
     },
     fn piece_meta() -> NilClass {
-        Piece::meta(itself)
+        itself.meta()
     },
     fn piece_gen() -> NilClass {
-        Piece::gen(itself)
+        itself.gen()
     }
 );

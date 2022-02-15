@@ -3,7 +3,7 @@ use crate::{impl_inner, inner::meta::*, ruby_class};
 use std::str::Chars;
 
 use itertools::PeekingNext;
-use rutie::{methods, types::Value, AnyObject, Class, Float, Module, NilClass, Object, RString};
+use rutie::{methods, types::Value, AnyObject, Class, Float, NilClass, Object, RString};
 
 pub fn define_class(super_class: &Class) {
     Class::new("Meta", Some(super_class)).define(|class| {
@@ -34,24 +34,24 @@ impl Meta {
         Class::from_existing("Meta").wrap_data(inner, &*META_WRAPPER)
     }
 
-    pub fn bpm(mut itself: Meta, bpm: Float) -> NilClass {
-        let meta = itself.get_data_mut(&*META_WRAPPER);
+    pub fn bpm(&mut self, bpm: Float) -> NilClass {
+        let meta = self.get_data_mut(&*META_WRAPPER);
 
         meta.bpm = bpm.to_f64() as f32;
 
         NilClass::new()
     }
 
-    pub fn sample_rate(mut itself: Meta, sample_rate: Float) -> NilClass {
-        let meta = itself.get_data_mut(&*META_WRAPPER);
+    pub fn sample_rate(&mut self, sample_rate: Float) -> NilClass {
+        let meta = self.get_data_mut(&*META_WRAPPER);
 
         meta.sample_rate = sample_rate.to_f64() as f32;
 
         NilClass::new()
     }
 
-    pub fn composite(mut itself: Meta, source: String) -> NilClass {
-        let meta = itself.get_data_mut(&*META_WRAPPER);
+    pub fn composite(&mut self, source: String) -> NilClass {
+        let meta = self.get_data_mut(&*META_WRAPPER);
         let source = source.to_string();
         let mut source = source.chars();
         let mut composition = Vec::new();
@@ -88,12 +88,12 @@ methods!(
     Meta,
     itself,
     fn meta_bpm(bpm: Float) -> NilClass {
-        Meta::bpm(itself, bpm.unwrap())
+        itself.bpm(bpm.unwrap())
     },
     fn meta_sample_rate(sample_rate: Float) -> NilClass {
-        Meta::sample_rate(itself, sample_rate.unwrap())
+        itself.sample_rate(sample_rate.unwrap())
     },
     fn meta_composite(composition: RString) -> NilClass {
-        Meta::composite(itself, composition.unwrap().to_string())
+        itself.composite(composition.unwrap().to_string())
     },
 );

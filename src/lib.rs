@@ -4,7 +4,6 @@ mod meta;
 mod oscillator;
 mod piece;
 mod section;
-mod support;
 mod time;
 mod track;
 mod transfer;
@@ -27,6 +26,5 @@ pub extern "C" fn init_jungru() {
     track::define_class(&data_class);
     section::define_class(&data_class);
     transfer::define_class(&data_class);
-    support::define_class(&data_class);
     oscillator::define_class(&data_class);
 }
