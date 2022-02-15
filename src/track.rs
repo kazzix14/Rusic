@@ -95,7 +95,9 @@ impl Track {
 
             let mut note_signal = Vec::new();
             let mut time = 0.0;
-            while let Some(signal) = instrument.exec_signal(&note, beat.seconds(bpm), time) {
+            while let Some(signal) =
+                instrument.exec_signal(&note, beat.seconds(bpm), time, 1.0 / sample_rate as f64)
+            {
                 time += 1.0 / sample_rate;
 
                 note_signal.push(signal);

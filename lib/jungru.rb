@@ -53,6 +53,10 @@ module Jungru
       def amp(v)
         self * v
       end
+
+      def eq12
+        (0...12).map { |v| self * 2.0 ** (v.to_f() / 12.0) }
+      end
     end
 
     class ::Float
@@ -80,7 +84,7 @@ module Jungru
         last
       end
     end
-
+    
     #def sin(hz, t)
     #  ru_sin(hz.to_f, t)
     #end

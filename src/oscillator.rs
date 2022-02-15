@@ -9,7 +9,7 @@ pub fn define_class(super_class: &Class) {
         class.def_self("new", oscillator_new);
         class.def("sin", oscillator_sin);
         class.def("saw", oscillator_saw);
-        class.def("square", oscillator_square);
+        class.def("sq", oscillator_square);
     });
 }
 
@@ -47,7 +47,10 @@ impl Oscillator {
 
         osc.push_phase(frequency, delta);
 
-        2.0 * (osc.phase.rem_euclid(1.0) - 0.5)
+        match osc.phase.rem_euclid(1.0) {
+            v if 0.5 < v => 1.0,
+            _ => -1.0,
+        }
     }
 }
 

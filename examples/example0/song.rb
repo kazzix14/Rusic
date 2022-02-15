@@ -33,59 +33,56 @@ j = ::Piece.new
 
 j.instrument :kick do |i|
   i.init do |i|
-     i.save :o, ::Oscillator.new(0.1)
   end
 
-  i.signal do |i, n, l, t|
+  i.before_each_note do |i, n|
+    i.save :last, 0.0
+    i.save :osc, ::Oscillator.new(0.0)
+    i.save :whead, 0
+
+    buf = []
+
+    for idx in 0...44100
+      buf.push 0
+    end
+
+    i.save :buf, buf
+  end
+
+  i.signal do |i, n, l, t, dt|
     if t < l
-
-      o = i.load :o
-      o.sin(100.0, 2.0)
-      o = i.load :o
-
-      i.out Math.sin(440.0 * t)
+      
+      osc = i.load :osc
+      i.out osc.sin(n[:f], dt) * (1.0 - (t / (15.0 *l))) ** 4
+      i.save :osc, osc
     end
   end
 end
 
 j.meta do |m|
-  m.bpm 175.0
+  m.bpm 178.0
   m.composite \
   '
     a
   '
 end
 
-#j.track :pad, :inst1 do |t|
-#  t.symbols do |s, i|
-#    { freq: 110.0 *  (1.0 + i.to_f / 10.0) }
-#  end
-#
-#  t.section :a do |s|
-#    s.division 1, 1
-#
-#    str = ""
-#    (0..8).map do |_|
-#      str << alphanumeric.sample.to_s
-#    end
-#    
-#    p str
-#
-#    s.sheet str
-#  end
-#end
-
 j.track :kick , :kick do |t|
-  t.symbol :a, {}
+  t.symbols do |k, i|
+    { f: 440.0.eq12.sample }
+  end
+  
   t.section :a do |s|
-    s.division 1, 4
-    s.length 1, 1
+    s.division 1, 8
+    s.length 8, 1
     
-    s.sheet \
-    '
-      a
-      aaa
-    '
+    str = ""
+    
+    for _ in 0...32
+      str << %w(a b c d e f).sample
+    end
+    
+    s.sheet str
   end
 end
 

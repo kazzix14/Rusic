@@ -73,7 +73,7 @@ impl Instrument {
         instrument_dto.inner().offset
     }
 
-    pub fn exec_signal(&mut self, note: &Hash, length: f32, time: f32) -> Option<f32> {
+    pub fn exec_signal(&mut self, note: &Hash, length: f32, time: f32, delta: f64) -> Option<f32> {
         let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
         let mut instrument_dto = instrument.instrument_dto;
         instrument_dto.reset();
@@ -83,6 +83,7 @@ impl Instrument {
             note.to_any_object(),
             Float::new(length as f64).to_any_object(),
             Float::new(time as f64).to_any_object(),
+            Float::new(delta).to_any_object(),
         ];
 
         if let Some(f) = &instrument.signal_fn {
