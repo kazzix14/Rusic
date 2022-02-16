@@ -73,7 +73,13 @@ impl Instrument {
         instrument_dto.inner().offset
     }
 
-    pub fn exec_signal(&mut self, note: &Hash, length: f32, time: f32, delta: f64) -> Option<f32> {
+    pub fn exec_signal(
+        &mut self,
+        note: &Hash,
+        length: f32,
+        time: f32,
+        delta: f64,
+    ) -> Option<(f32, f32)> {
         let instrument = self.get_data_mut(&*INSTRUMENT_WRAPPER);
         let mut instrument_dto = instrument.instrument_dto;
         instrument_dto.reset();
@@ -90,7 +96,13 @@ impl Instrument {
             f.call(&arg);
         }
 
-        instrument_dto.inner().out
+        if let (Some(left), Some(right)) =
+            (instrument_dto.inner().left, instrument_dto.inner().right)
+        {
+            Some((left, right))
+        } else {
+            None
+        }
     }
 }
 

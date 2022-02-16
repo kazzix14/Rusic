@@ -46,8 +46,8 @@ impl Section {
             .chars()
             .map(|c| match c {
                 _ if c.is_whitespace() => None,
-                _ if c.is_alphanumeric() => section.get_symbol(c.to_string()),
-                _ => panic!("unexpected token in sheet"),
+                //_ if c.is_alphanumeric() => section.get_symbol(c.to_string()),
+                _ => section.get_symbol(c.to_string()),
             })
             .filter_map(|v| v)
             .collect();

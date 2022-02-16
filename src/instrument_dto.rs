@@ -8,6 +8,8 @@ pub fn define_class(super_class: &Class) {
         class.def("save", instrument_dto_save);
         class.def("offset", instrument_dto_offset);
         class.def("out", instrument_dto_out);
+        class.def("left", instrument_dto_left);
+        class.def("right", instrument_dto_right);
     });
 }
 
@@ -63,13 +65,49 @@ impl InstrumentDto {
             _ => panic!("signal is invalid"),
         };
 
-        instrument_dto.out = signal;
+        instrument_dto.left = signal;
+        instrument_dto.right = signal;
+
+        NilClass::new()
+    }
+
+    pub fn left(&mut self, signal: AnyObject) -> NilClass {
+        let instrument_dto = self.get_data_mut(&*TRANSFER_WRAPPER);
+
+        let signal = match signal {
+            _ if Class::from_existing("NilClass").case_equals(&signal) => None,
+            _ if Class::from_existing("Float").case_equals(&signal) => {
+                let signal: Float = signal.convert_or_panic();
+                Some(signal.to_f64() as f32)
+            }
+            _ => panic!("signal is invalid"),
+        };
+
+        instrument_dto.left = signal;
+
+        NilClass::new()
+    }
+
+    pub fn right(&mut self, signal: AnyObject) -> NilClass {
+        let instrument_dto = self.get_data_mut(&*TRANSFER_WRAPPER);
+
+        let signal = match signal {
+            _ if Class::from_existing("NilClass").case_equals(&signal) => None,
+            _ if Class::from_existing("Float").case_equals(&signal) => {
+                let signal: Float = signal.convert_or_panic();
+                Some(signal.to_f64() as f32)
+            }
+            _ => panic!("signal is invalid"),
+        };
+
+        instrument_dto.right = signal;
 
         NilClass::new()
     }
 
     pub fn reset(&mut self) {
-        self.get_data_mut(&*TRANSFER_WRAPPER).out = None;
+        self.get_data_mut(&*TRANSFER_WRAPPER).left = None;
+        self.get_data_mut(&*TRANSFER_WRAPPER).right = None;
     }
 }
 
@@ -89,5 +127,11 @@ methods!(
     },
     fn instrument_dto_out(signal: AnyObject) -> NilClass {
         itself.out(signal.unwrap())
+    },
+    fn instrument_dto_left(signal: AnyObject) -> NilClass {
+        itself.left(signal.unwrap())
+    },
+    fn instrument_dto_right(signal: AnyObject) -> NilClass {
+        itself.right(signal.unwrap())
     },
 );

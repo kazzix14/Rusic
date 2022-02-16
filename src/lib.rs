@@ -21,7 +21,7 @@ use rutie::{Class, GC};
 pub extern "C" fn init_jungru() {
     let data_class = Class::from_existing("Object");
 
-    GC::disable();
+    //GC::disable();
 
     //Module::new("Jungru").define(|module| {
     //    piece::define_class(module, &data_class);

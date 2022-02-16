@@ -48,7 +48,7 @@ impl Track {
     }
 
     // returns (notes: Vec<(samples: Vec, offset, start)>, estimated_size)
-    pub fn gen(&self, bpm: f32, sample_rate: f32) -> (Vec<(Vec<f32>, f32)>, usize) {
+    pub fn gen(&self, bpm: f32, sample_rate: f32) -> (Vec<(Vec<(f32, f32)>, f32)>, usize) {
         let track = self.get_data(&*TRACK_WRAPPER);
         let mut instrument = track.instrument;
 

@@ -35,7 +35,7 @@ impl Piece {
         let sample_rate = piece.meta.unwrap().inner().sample_rate;
 
         // (tracks: Vec<notes: Vec<(samples: Vec<f32>>, offset, start)>, tracks: Vec<estimated_size>)
-        let (signals, estimates): (Vec<Vec<(Vec<f32>, f32)>>, Vec<usize>) = piece
+        let (signals, estimates): (Vec<Vec<(Vec<(f32, f32)>, f32)>>, Vec<usize>) = piece
             .tracks
             .values()
             .map(|track| track.gen(piece.meta.unwrap().inner().bpm, sample_rate))
@@ -46,24 +46,32 @@ impl Piece {
         let estimated_size = estimates.into_iter().max().unwrap();
 
         // init buffer
-        let mut result_signal = Vec::with_capacity(estimated_size);
-        unsafe { result_signal.set_len(estimated_size) };
-        result_signal.iter_mut().for_each(|v| *v = 0.0);
+        let mut left_signal = Vec::with_capacity(estimated_size);
+        unsafe { left_signal.set_len(estimated_size) };
+        left_signal.iter_mut().for_each(|v| *v = 0.0);
+        let mut right_signal = Vec::with_capacity(estimated_size);
+        unsafe { right_signal.set_len(estimated_size) };
+        right_signal.iter_mut().for_each(|v| *v = 0.0);
 
         // put together
         while let Some((signal, start_at)) = signals.next() {
             let mut start = (start_at * sample_rate) as usize;
 
             let mut signal = signal.into_iter();
-            while let Some(s) = signal.next() {
-                let p = unsafe { result_signal.get_unchecked_mut(start) };
-                *p += s;
+            while let Some((l, r)) = signal.next() {
+                let lp = unsafe { left_signal.get_unchecked_mut(start) };
+                let rp = unsafe { right_signal.get_unchecked_mut(start) };
+                *lp += l;
+                *rp += r;
                 start += 1;
             }
         }
 
-        if let Some(v) = result_signal.iter().find(|&&v| v <= -1.0 || 1.0 <= v) {
-            println!("warning: audio is clipping. {v}");
+        if let Some(v) = left_signal.iter().find(|&&v| v <= -1.0 || 1.0 <= v) {
+            println!("warning: left is clipping. {v}");
+        }
+        if let Some(v) = right_signal.iter().find(|&&v| v <= -1.0 || 1.0 <= v) {
+            println!("warning: right is clipping. {v}");
         }
 
         let spec = hound::WavSpec {
@@ -74,10 +82,13 @@ impl Piece {
         };
 
         let mut writer = hound::WavWriter::create("out.wav", spec).unwrap();
-        result_signal.into_iter().for_each(|s| {
-            writer.write_sample(s).unwrap();
-            writer.write_sample(s).unwrap();
-        });
+        left_signal
+            .into_iter()
+            .zip(right_signal.into_iter())
+            .for_each(|(l, r)| {
+                writer.write_sample(l).unwrap();
+                writer.write_sample(r).unwrap();
+            });
         writer.finalize().unwrap();
 
         NilClass::new()

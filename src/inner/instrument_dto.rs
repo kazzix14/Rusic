@@ -5,7 +5,8 @@ use rutie::{wrappable_struct, AnyObject, GC};
 #[derive(Debug, Clone)]
 pub struct InstrumentDtoInner {
     pub offset: f32,
-    pub out: Option<f32>,
+    pub left: Option<f32>,
+    pub right: Option<f32>,
     pub store: HashMap<String, AnyObject>,
 }
 
@@ -13,7 +14,8 @@ impl InstrumentDtoInner {
     pub fn new() -> Self {
         Self {
             offset: 0.0,
-            out: None,
+            left: None,
+            right: None,
             store: HashMap::new(),
         }
     }
