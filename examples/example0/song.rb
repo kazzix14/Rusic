@@ -92,7 +92,7 @@ j.instrument :pluck do |i|
           osc0.sq(n[:f][0] + rand, dt) +
           osc1.sq(n[:f][1] + rand, dt) +
           osc2.saw(n[:f][2] + rand + Math.cos(4.0 * t), dt) +
-          osc3.saw(n[:f][3] + rand + 3.0 + Math.sin(5.0 * t), dt) +
+          osc3.saw(n[:f][3] + rand + 3.0 + Math.sin(5.0 * t), t) +
           osc4.sin((n[:f][0] + rand) / 2, dt) +
           osc5.sin((n[:f][0] + rand) / 4, dt)
         )
@@ -124,7 +124,10 @@ j.instrument :arp do |i|
     i.save :fh, 0
   end
   i.before_each_note do |i, n|
-    i.save :o, ::Oscillator.new(0.0)
+    i.save :o0, ::Oscillator.new(0.0)
+    i.save :o1, ::Oscillator.new(0.0)
+    i.save :o2, ::Oscillator.new(0.0)
+    i.save :pan, rand < 0.5
 
     fh = i.load :fh
 
@@ -138,13 +141,29 @@ j.instrument :arp do |i|
 
   i.signal do |i, n, l, t, dt|
     if t < 0.1
-      o = i.load :o
+      pan = i.load :pan
+      o0 = i.load :o0
+      o1 = i.load :o1
+      o2 = i.load :o2
       f = i.load :f
-      i.out \
-        o.sin(f, dt)
-          .amp(adsr(0.01, 0.2, 0.05, 0.2, 0.1, t))
-          .amp(0.02)
-      i.save :o, o
+      
+      if pan
+        i.left \
+          (o0.sin(f, dt) + o1.sin(f * 1.5, dt) + o2.sin(f * 2.0, dt))
+            .amp(adsr(0.01, 0.2, 0.05, 0.2, 0.1, t))
+            .amp(0.02)
+            
+        i.right 0.0
+      else
+        i.right \
+          (o0.sin(f, dt) + o1.sin(f * 1.5, dt) + o2.sin(f * 2.0, dt))
+            .amp(adsr(0.01, 0.2, 0.05, 0.2, 0.1, t))
+            .amp(0.02)
+        i.left 0.0
+      end
+      i.load :o0, o0
+      i.load :o1, o1
+      i.load :o2, o2
     end
   end
 end
@@ -175,7 +194,8 @@ end
 
 j.meta do |m|
   m.bpm 123.0
-  m.composite 'a b '
+  # バグってる. セクションの長さを, noteのステート計算に着かなきゃいけない
+  m.composite 'b b '
 end
 
 chords = 90.0.minor_scale.chords
@@ -202,14 +222,14 @@ j.track :pluck, :pluck do |t|
   
   t.section :a do |s|
     s.division 1, 16
-    s.length 2, 1
+    s.length 8, 1
     
     s.sheet prog_pluck
   end
 
   t.section :b do |s|
     s.division 1, 16
-    s.length 2, 1
+    s.length 8, 1
     
     s.sheet prog_pluck
   end
@@ -222,14 +242,14 @@ j.track :arp, :arp do |t|
   
   t.section :a do |s|
     s.division 1, 16
-    s.length 2, 1
+    s.length 8, 1
     
     s.sheet ' '
   end
 
   t.section :b do |s|
     s.division 1, 16
-    s.length 2, 1
+    s.length 8, 1
     
     s.sheet prog_arp
   end
@@ -238,14 +258,14 @@ end
 j.track :kick, :kick do |t|
   t.section :a do |s| 
     s.division 1, 4
-    s.length 2, 1
+    s.length 8, 1
     s.symbol :a, { }
     s.sheet 'a'
   end
 
   t.section :b do |s| 
     s.division 1, 4
-    s.length 2, 1
+    s.length 8, 1
     s.symbol :a, { }
     s.sheet 'a'
   end
@@ -254,7 +274,7 @@ end
 j.track :hat, :hat do |t|
   t.section :a do |s| 
     s.division 1, 16
-    s.length 2, 1
+    s.length 8, 1
     s.symbol :'.', { }
     s.symbol :a, { p: true }
     s.sheet '
@@ -265,7 +285,7 @@ j.track :hat, :hat do |t|
 
   t.section :b do |s| 
     s.division 1, 16
-    s.length 2, 1
+    s.length 8, 1
     s.symbol :'.', { }
     s.symbol :a, { p: true }
     s.sheet '
